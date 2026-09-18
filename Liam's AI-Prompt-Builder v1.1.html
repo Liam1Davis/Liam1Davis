@@ -1,0 +1,721 @@
+<!-- This is the 2nd version of the application with some minor contextual and functional changes. -->
+   
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Prompt Builder</title>
+<style>
+  :root{
+    --bg:#f5f6f8;
+    --panel:#ffffff;
+    --border:#e1e4e9;
+    --text:#1f2430;
+    --muted:#616a7a;
+    --accent:#2f5bea;
+    --accent-dark:#1e40c4;
+    --success-bg:#e8f7ee;
+    --success-text:#1c6e3f;
+    --error-bg:#fdecec;
+    --error-text:#a92323;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+  }
+  #app{
+    max-width:960px;
+    margin:0 auto;
+    padding:32px 20px 64px;
+  }
+
+  /* ---------- Home page ---------- */
+  .home-header h1{
+    font-size:2rem;
+    margin:0 0 8px;
+  }
+  .home-intro{
+    max-width:640px;
+    margin:0 0 20px;
+  }
+  .home-intro p{
+    color:var(--muted);
+    font-size:.95rem;
+    margin:0 0 6px;
+  }
+  .home-header .lede{
+    color:var(--text);
+    font-weight:600;
+    font-size:1.05rem;
+    max-width:640px;
+    margin:0 0 32px;
+  }
+  .card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:18px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-left:4px solid var(--accent);
+    border-radius:var(--radius);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+  }
+  .card-tag{
+    display:inline-block;
+    font-size:.72rem;
+    font-weight:600;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--accent-dark);
+    background:#eaf0fe;
+    padding:3px 8px;
+    border-radius:20px;
+    margin-bottom:10px;
+    align-self:flex-start;
+  }
+  .card h2{
+    margin:0 0 8px;
+    font-size:1.25rem;
+  }
+  .card p{
+    color:var(--muted);
+    font-size:.92rem;
+    flex-grow:1;
+    margin:0 0 16px;
+  }
+  .home-footer{
+    margin-top:36px;
+    padding-top:20px;
+    border-top:1px solid var(--border);
+    color:var(--muted);
+    font-size:.88rem;
+  }
+  .home-footer code{
+    background:#eef0f4;
+    padding:2px 6px;
+    border-radius:4px;
+    font-size:.85em;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-block;
+    border:none;
+    border-radius:8px;
+    padding:9px 16px;
+    font-size:.92rem;
+    font-weight:600;
+    cursor:pointer;
+    text-decoration:none;
+    background:#eaf0fe;
+    color:var(--accent-dark);
+    transition:background .15s ease;
+  }
+  .btn:hover{background:#dde8fd;}
+  .btn.primary{background:var(--accent);color:#fff;}
+  .btn.primary:hover{background:var(--accent-dark);}
+  .btn.secondary{background:#eef0f4;color:var(--text);}
+  .btn.secondary:hover{background:#e2e5ea;}
+  .btn.ghost{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--border);}
+  .btn.ghost:hover{background:#eef0f4;}
+  .btn.small{padding:5px 10px;font-size:.8rem;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn:disabled:hover{background:#eaf0fe;}
+
+  /* ---------- Framework page ---------- */
+  .back-link{
+    display:inline-block;
+    margin-bottom:20px;
+    color:var(--muted);
+    text-decoration:none;
+    font-size:.9rem;
+  }
+  .back-link:hover{color:var(--accent-dark);}
+  .fw-header h1{
+    margin:0 0 6px;
+    font-size:1.9rem;
+  }
+  .fw-header .fw-subheader{
+    color:var(--muted);
+    font-size:1rem;
+    max-width:680px;
+    margin:0 0 28px;
+  }
+  .fields{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:8px 20px;
+  }
+  .field-row{
+    display:flex;
+    gap:20px;
+    padding:16px 0;
+    border-bottom:1px solid var(--border);
+    align-items:flex-start;
+  }
+  .field-row:last-child{border-bottom:none;}
+  .field-label{
+    flex:0 0 34%;
+    max-width:34%;
+  }
+  .field-label label{
+    display:block;
+    font-weight:600;
+    font-size:.95rem;
+    margin-bottom:4px;
+  }
+  .field-help{
+    color:var(--muted);
+    font-size:.8rem;
+  }
+  .field-input{flex:1;}
+  .field-input textarea{
+    width:100%;
+    resize:vertical;
+    font-family:inherit;
+    font-size:16px; /* 16px minimum avoids automatic zoom on iOS Safari */
+    padding:9px 11px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#fbfbfc;
+  }
+  .field-input textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+    background:#fff;
+  }
+  @media (max-width:640px){
+    .field-row{flex-direction:column;}
+    .field-label{max-width:100%;}
+  }
+
+  .action-bar{
+    margin-top:22px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+  }
+  .folder-indicator{
+    margin-top:12px;
+    font-size:.85rem;
+    color:var(--muted);
+  }
+  .status{
+    margin-top:12px;
+    font-size:.9rem;
+    padding:0;
+  }
+  .status.success{color:var(--success-text);background:var(--success-bg);padding:9px 12px;border-radius:8px;}
+  .status.error{color:var(--error-text);background:var(--error-bg);padding:9px 12px;border-radius:8px;}
+
+  .preview-section{margin-top:28px;}
+  .preview-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .preview-header h3{margin:0;font-size:1rem;color:var(--muted);font-weight:600;}
+  #preview-box{
+    width:100%;
+    font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+    font-size:16px; /* 16px minimum avoids automatic zoom on iOS Safari */
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#fbfbfc;
+    resize:vertical;
+  }
+
+  /* ---------- Small screens / phones ---------- */
+  @media (max-width:600px){
+    #app{padding:20px 14px 48px;}
+    .home-header h1{font-size:1.5rem;}
+    .home-header .lede{font-size:.95rem;}
+    .fw-header h1{font-size:1.5rem;}
+    .fw-header .fw-subheader{font-size:.92rem;}
+    .card{padding:16px;}
+    .fields{padding:4px 14px;}
+    .action-bar{flex-direction:column;align-items:stretch;}
+    .action-bar .btn{width:100%;text-align:center;padding:13px 16px;font-size:1rem;}
+    .preview-header{flex-wrap:wrap;gap:8px;}
+    .preview-header .btn{padding:10px 14px;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ==========================================================================
+   Data: the seven prompt frameworks, their descriptions and input fields
+   ========================================================================== */
+const FRAMEWORKS = {
+  rise: {
+    name: "RISE",
+    tag: "For structured tasks",
+    homeDesc: "Best for task-based prompts where structure and clarity matter. RISE tells the AI who to act as, exactly what to do, the order to do it in, and what a good result looks like.",
+    subHeader: "Give the AI a role, clear instructions, a defined sequence of steps, and the expectations for the finished output.",
+    fields: [
+      { label:"Role", help:"Who or what should the AI act as?", placeholder:"e.g. You are a senior financial analyst with 10 years of experience in SaaS budgeting." },
+      { label:"Instructions", help:"The specific task you want carried out.", placeholder:"e.g. Review the attached Q3 budget and identify the three biggest cost-saving opportunities." },
+      { label:"Steps", help:"Break the task into an ordered sequence.", placeholder:"e.g. 1) Summarise spend by category 2) Flag anomalies 3) Rank by savings potential 4) Recommend actions" },
+      { label:"Expectations", help:"What the finished output should look like.", placeholder:"e.g. Return a table with category, current spend, savings potential and a one-line rationale. Keep it under 300 words." }
+    ]
+  },
+  race: {
+    name: "RACE",
+    tag: "For content with heavy context",
+    homeDesc: "Designed for content generation where background information significantly shapes the quality of the output. RACE front-loads context so the AI produces on-brief, on-brand results.",
+    subHeader: "Set the AI's role, the action you need, the context that shapes it, and how the work should be executed.",
+    fields: [
+      { label:"Role", help:"Who or what should the AI act as?", placeholder:"e.g. You are an experienced B2B email copywriter." },
+      { label:"Action", help:"The specific output you need.", placeholder:"e.g. Write a 3-email nurture sequence for trial users who haven't logged in for 7 days." },
+      { label:"Context", help:"Background that shapes the quality of the result.", placeholder:"e.g. Our product is a project management tool for creative agencies; tone is friendly but not salesy; audience is time-poor founders." },
+      { label:"Execution", help:"Constraints and requirements for how the work is carried out.", placeholder:"e.g. Each email under 120 words, one clear call-to-action, subject line included, no exclamation marks." }
+    ]
+  },
+  cot: {
+    name: "Chain-of-Thought",
+    tag: "For reasoning and logic",
+    homeDesc: "Asks the AI to show its reasoning step-by-step rather than jumping straight to an answer, which improves accuracy on logic, analysis and multi-factor decisions.",
+    subHeader: "Walk the AI through a numbered chain of reasoning stages before it gives a final answer.",
+    fields: [
+      { label:"Task / Question", help:"The problem or question to reason through.", placeholder:"e.g. Should we switch our hosting provider from Provider A to Provider B?" },
+      { label:"Context / Background", help:"Relevant background information.", placeholder:"e.g. Current spend is £4k/month, a 99.9% uptime SLA is required, migration would take roughly 2 weeks." },
+      { label:"Reasoning Step 1", help:"First stage of the reasoning chain.", placeholder:"e.g. List all relevant factors (cost, reliability, support, migration effort)." },
+      { label:"Reasoning Step 2", help:"Second stage of the reasoning chain.", placeholder:"e.g. Analyse each factor for both providers." },
+      { label:"Reasoning Step 3", help:"Third stage of the reasoning chain.", placeholder:"e.g. Weigh the trade-offs against our priorities." },
+      { label:"Final Instruction", help:"What the AI should conclude with, after reasoning through the steps.", placeholder:"e.g. State a clear recommendation with a one-paragraph justification." }
+    ]
+  },
+  tot: {
+    name: "Tree-of-Thought",
+    tag: "For exploring options",
+    homeDesc: "Explores several distinct solution approaches in parallel, weighs each one against the others, and then selects the strongest instead of committing to the first idea.",
+    subHeader: "Have the AI branch into multiple approaches, evaluate each one, then recommend the best path.",
+    fields: [
+      { label:"Problem / Goal", help:"The problem or goal to explore approaches for.", placeholder:"e.g. How should we reduce customer churn by 15% this quarter?" },
+      { label:"Approach 1", help:"A distinct strategy or path worth exploring.", placeholder:"e.g. Improve onboarding" },
+      { label:"Approach 2", help:"A second, different strategy.", placeholder:"e.g. Introduce a loyalty programme" },
+      { label:"Approach 3", help:"A third, different strategy.", placeholder:"e.g. Proactive customer support outreach" },
+      { label:"Evaluation Criteria", help:"What each approach should be judged against.", placeholder:"e.g. Cost, time to implement, expected impact, risk." },
+      { label:"Final Selection Instruction", help:"How the AI should conclude and choose.", placeholder:"e.g. Compare all approaches against the criteria above and recommend one, with reasoning." }
+    ]
+  },
+  react: {
+    name: "ReAct",
+    tag: "For action-based tasks",
+    homeDesc: "Combines reasoning with action-taking, cycling through thought, action and observation, for tasks that need information gathered or steps carried out in sequence.",
+    subHeader: "Loop the AI through Thought, Action and Observation until the task is complete.",
+    fields: [
+      { label:"Goal / Task", help:"What needs to be accomplished.", placeholder:"e.g. Find the best flight option and draft a travel itinerary." },
+      { label:"Available Tools / Actions", help:"What the AI is allowed to use or do.", placeholder:"e.g. Web search, calculator, calendar lookup." },
+      { label:"Thought Instruction", help:"How the AI should reason before acting.", placeholder:"e.g. Before each action, explain what you need to find out and why." },
+      { label:"Action Instruction", help:"How actions should be described.", placeholder:"e.g. State the exact action to take, e.g. 'Search for flights from London to Lisbon on 3 October'." },
+      { label:"Observation Instruction", help:"How results should be reviewed before continuing.", placeholder:"e.g. Summarise what was learned from each action before deciding the next step." },
+      { label:"Final Answer Instruction", help:"What the AI should deliver once the loop is finished.", placeholder:"e.g. Once the itinerary is complete, present it as a day-by-day schedule." }
+    ]
+  },
+  selfconsistency: {
+    name: "Self-Consistency",
+    tag: "For high-accuracy needs",
+    homeDesc: "Generates several independent answers to the same question and checks them for agreement, favouring consensus over a single attempt to improve reliability.",
+    subHeader: "Ask the AI to solve the same problem multiple times independently, then reconcile the results.",
+    fields: [
+      { label:"Question / Problem", help:"The question that needs a reliable answer.", placeholder:"e.g. What will next month's revenue be, given current trends?" },
+      { label:"Number of Independent Attempts", help:"How many separate reasoning attempts to generate.", placeholder:"e.g. 3" },
+      { label:"Instruction for Each Attempt", help:"How each attempt should be approached, ideally with some variation.", placeholder:"e.g. Use a different method or assumption set for each attempt." },
+      { label:"Comparison Instruction", help:"How the AI should evaluate the attempts against each other.", placeholder:"e.g. Compare the answers and highlight where they agree or disagree." },
+      { label:"Consensus / Confidence Instruction", help:"What the final, reconciled output should look like.", placeholder:"e.g. Give a final consensus answer together with a confidence level (low / medium / high)." }
+    ]
+  },
+  leasttomost: {
+    name: "Least-to-Most",
+    tag: "For complex problems",
+    homeDesc: "Breaks an overwhelming problem into a sequence of smaller subproblems, solving the simplest first and using each result to build toward the full solution.",
+    subHeader: "Decompose a complex problem into progressively harder subproblems and solve them in order.",
+    fields: [
+      { label:"Complex Problem", help:"The overall problem, in full.", placeholder:"e.g. Design a pricing model for a new SaaS product." },
+      { label:"Subproblem 1 (Simplest)", help:"The easiest piece to solve first.", placeholder:"e.g. List the cost inputs." },
+      { label:"Subproblem 2", help:"Builds on subproblem 1.", placeholder:"e.g. Estimate a break-even price per user." },
+      { label:"Subproblem 3", help:"Builds on subproblem 2.", placeholder:"e.g. Compare against 2-3 competitor pricing models." },
+      { label:"Subproblem 4 (Most Complex)", help:"The full, hardest version of the problem.", placeholder:"e.g. Propose a tiered pricing structure with rationale." },
+      { label:"Synthesis Instruction", help:"How the AI should combine the steps into a final answer.", placeholder:"e.g. Show the output of each subproblem before presenting the final tiered pricing structure." }
+    ]
+  }
+};
+
+let currentFrameworkId = null;
+let cachedDirHandle = null;
+let lastGenerated = null; // { filename, content } for the most recently generated prompt
+const app = document.getElementById('app');
+
+function supportsDirectoryPicker(){ return typeof window.showDirectoryPicker === 'function'; }
+function supportsShare(){ return typeof navigator.share === 'function'; }
+
+/* ==========================================================================
+   Routing
+   ========================================================================== */
+function route(){
+  const hash = decodeURIComponent(location.hash.replace('#',''));
+  if (hash && FRAMEWORKS[hash]) {
+    renderFramework(hash);
+  } else {
+    renderHome();
+  }
+}
+window.addEventListener('hashchange', route);
+window.addEventListener('DOMContentLoaded', route);
+
+/* ==========================================================================
+   Rendering
+   ========================================================================== */
+function renderHome(){
+  currentFrameworkId = null;
+  document.title = 'AI Prompt Builder';
+  app.innerHTML = homeHTML();
+}
+
+function renderFramework(id){
+  currentFrameworkId = id;
+  const fw = FRAMEWORKS[id];
+  document.title = fw.name + ' — AI Prompt Builder';
+  app.innerHTML = frameworkHTML(fw);
+  updateFolderIndicator();
+}
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function homeHTML(){
+  const cards = Object.keys(FRAMEWORKS).map(id => {
+    const fw = FRAMEWORKS[id];
+    return `<div class="card">
+      <span class="card-tag">${escapeHtml(fw.tag)}</span>
+      <h2>${escapeHtml(fw.name)}</h2>
+      <p>${escapeHtml(fw.homeDesc)}</p>
+      <a class="btn primary" href="#${id}">Open ${escapeHtml(fw.name)} →</a>
+    </div>`;
+  }).join('');
+
+  return `
+    <header class="home-header">
+      <h1>AI Prompt Builder</h1>
+      <div class="home-intro">
+        <p>This tool turns proven AI prompting frameworks into simple fill-in forms, so you never have to remember their structure.</p>
+        <p>Each framework breaks a prompt down into its key parts, with a plain-language hint beside every field.</p>
+        <p>Fill in your answers and the tool compiles them into one clear, ready-to-paste prompt for any AI application.</p>
+        <p>Every prompt is also saved as a numbered .txt file, so you build up a personal library of prompts over time. Select "Generate and Save Text File" button at the end of the form to complete the process.</p>
+      </div>
+      <p class="lede">Choose a framework below to get started.</p>
+    </header>
+    <div class="card-grid">${cards}</div>
+    <footer class="home-footer">
+      <p>Files are named <code>PromptXXXDDMMYYYY.txt</code> (e.g. <code>Prompt00118092026.txt</code>) and numbered consecutively each day, starting again at 001 the next day. The first time you generate a file, you'll be asked to choose your output folder (e.g. your "AI Prompts Output" folder in OneDrive) — after that, files save straight into it.</p>
+    </footer>
+  `;
+}
+
+function frameworkHTML(fw){
+  const rows = fw.fields.map((f, i) => `
+    <div class="field-row">
+      <div class="field-label">
+        <label for="field-input-${i}">${escapeHtml(f.label)}</label>
+        <div class="field-help">${escapeHtml(f.help)}</div>
+      </div>
+      <div class="field-input">
+        <textarea id="field-input-${i}" rows="2" placeholder="${escapeHtml(f.placeholder)}"></textarea>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <a class="back-link" href="#">← Back to all frameworks</a>
+    <header class="fw-header">
+      <h1>${escapeHtml(fw.name)}</h1>
+      <p class="fw-subheader">${escapeHtml(fw.subHeader)}</p>
+    </header>
+    <div class="fields">${rows}</div>
+    <div class="action-bar">
+      <button class="btn primary" onclick="handleGenerate()">Generate and Save Text File</button>
+      ${supportsDirectoryPicker() ? `<button class="btn secondary" onclick="handleChangeFolder()">Change output folder</button>` : ''}
+      ${supportsShare() ? `<button class="btn secondary" id="share-btn" onclick="handleShare()" disabled>Share…</button>` : ''}
+      <button class="btn ghost" onclick="handleClear()">Clear form</button>
+    </div>
+    <div id="folder-indicator" class="folder-indicator"></div>
+    <div id="status-msg" class="status"></div>
+    <div class="preview-section">
+      <div class="preview-header">
+        <h3>Compiled prompt</h3>
+        <button class="btn ghost small" onclick="handleCopy()">Copy to clipboard</button>
+      </div>
+      <textarea id="preview-box" readonly rows="8" placeholder="Your compiled prompt will appear here after you click Generate."></textarea>
+    </div>
+  `;
+}
+
+/* ==========================================================================
+   IndexedDB helpers — used to remember the chosen output folder
+   ========================================================================== */
+function openDB(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('aiPromptBuilderDB', 1);
+    req.onupgradeneeded = () => { req.result.createObjectStore('handles'); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbGet(key){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('handles', 'readonly');
+    const req = tx.objectStore('handles').get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbSet(key, value){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('handles', 'readwrite');
+    const req = tx.objectStore('handles').put(value, key);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/* ==========================================================================
+   Output folder handling (File System Access API, Chrome/Edge)
+   ========================================================================== */
+async function getDirectoryHandle(forcePick){
+  if (!supportsDirectoryPicker()) return null;
+
+  if (!forcePick){
+    if (cachedDirHandle) return cachedDirHandle;
+    try {
+      const stored = await idbGet('outputDir');
+      if (stored){
+        const perm = await stored.queryPermission({ mode:'readwrite' });
+        if (perm === 'granted'){
+          cachedDirHandle = stored;
+          return stored;
+        }
+        if (perm === 'prompt'){
+          const reqPerm = await stored.requestPermission({ mode:'readwrite' });
+          if (reqPerm === 'granted'){
+            cachedDirHandle = stored;
+            return stored;
+          }
+        }
+      }
+    } catch(e){ /* fall through to picker */ }
+  }
+
+  const handle = await window.showDirectoryPicker({ id:'ai-prompt-output', mode:'readwrite' });
+  await idbSet('outputDir', handle);
+  cachedDirHandle = handle;
+  return handle;
+}
+
+async function updateFolderIndicator(){
+  const el = document.getElementById('folder-indicator');
+  if (!el) return;
+
+  if (!supportsDirectoryPicker()){
+    el.textContent = supportsShare()
+      ? "This device saves files as a normal download. Use \"Share…\" after generating to send the file straight to OneDrive, Files, email or another app."
+      : "This browser doesn't support automatic folder saving (try Chrome or Edge on a computer) — files will download normally instead.";
+    return;
+  }
+  try {
+    const stored = cachedDirHandle || await idbGet('outputDir');
+    if (stored){
+      el.textContent = `Output folder: "${stored.name}" — click "Change output folder" to pick a different one.`;
+    } else {
+      el.textContent = "Output folder: not set yet — you'll be asked to choose one the first time you click Generate.";
+    }
+  } catch(e){
+    el.textContent = "Output folder: not set yet.";
+  }
+}
+
+async function handleChangeFolder(){
+  const statusEl = document.getElementById('status-msg');
+  if (!supportsDirectoryPicker()){
+    statusEl.textContent = "This browser doesn't support choosing a folder automatically (try Chrome or Edge). Files will download normally.";
+    statusEl.className = 'status error';
+    return;
+  }
+  try {
+    await getDirectoryHandle(true);
+    updateFolderIndicator();
+    statusEl.textContent = 'Output folder updated.';
+    statusEl.className = 'status success';
+  } catch(e){
+    if (e && e.name === 'AbortError') return;
+    console.error(e);
+    statusEl.textContent = 'Could not set the output folder.';
+    statusEl.className = 'status error';
+  }
+}
+
+/* ==========================================================================
+   Filename numbering — PromptXXXDDMMYYYY.txt, per-browser daily counter
+   ========================================================================== */
+function nextFilename(){
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2,'0');
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  const yyyy = now.getFullYear();
+  const dateStr = `${dd}${mm}${yyyy}`;
+
+  const counters = JSON.parse(localStorage.getItem('aiPromptBuilderCounters') || '{}');
+  const next = (counters[dateStr] || 0) + 1;
+  counters[dateStr] = next;
+
+  return {
+    filename: `Prompt${String(next).padStart(3,'0')}${dateStr}.txt`,
+    commit: () => localStorage.setItem('aiPromptBuilderCounters', JSON.stringify(counters))
+  };
+}
+
+/* ==========================================================================
+   Generate / Save / Copy / Clear
+   ========================================================================== */
+async function handleGenerate(){
+  if (!currentFrameworkId) return;
+  const fw = FRAMEWORKS[currentFrameworkId];
+  const statusEl = document.getElementById('status-msg');
+  const previewEl = document.getElementById('preview-box');
+
+  const lines = [];
+  fw.fields.forEach((f, i) => {
+    const val = document.getElementById(`field-input-${i}`).value.trim();
+    if (val) lines.push(`- ${f.label}: ${val}`);
+  });
+
+  if (lines.length === 0){
+    statusEl.textContent = 'Please fill in at least one field before generating.';
+    statusEl.className = 'status error';
+    return;
+  }
+
+  const content = lines.join('\n') + '\n';
+  previewEl.value = content;
+
+  const { filename, commit } = nextFilename();
+  lastGenerated = { filename, content };
+  const shareBtn = document.getElementById('share-btn');
+  if (shareBtn) shareBtn.removeAttribute('disabled');
+
+  if (supportsDirectoryPicker()){
+    try {
+      const dirHandle = await getDirectoryHandle(false);
+      const fileHandle = await dirHandle.getFileHandle(filename, { create:true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(content);
+      await writable.close();
+      commit();
+      updateFolderIndicator();
+      statusEl.innerHTML = `Saved as <strong>${escapeHtml(filename)}</strong> to "${escapeHtml(dirHandle.name)}".`;
+      statusEl.className = 'status success';
+      return;
+    } catch(e){
+      if (e && e.name === 'AbortError'){
+        statusEl.textContent = 'Folder selection was cancelled — file not saved. Click Generate again to retry.';
+        statusEl.className = 'status error';
+        return;
+      }
+      console.error(e);
+      /* fall through to plain download */
+    }
+  }
+
+  commit();
+  const blob = new Blob([content], { type:'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  statusEl.innerHTML = `Downloaded as <strong>${escapeHtml(filename)}</strong>. Your browser doesn't support automatic folder saving, so move the file into your output folder manually.`;
+  statusEl.className = 'status success';
+}
+
+async function handleShare(){
+  const statusEl = document.getElementById('status-msg');
+  if (!lastGenerated){
+    statusEl.textContent = 'Generate a prompt first, then you can share it.';
+    statusEl.className = 'status error';
+    return;
+  }
+  try {
+    const file = new File([lastGenerated.content], lastGenerated.filename, { type:'text/plain' });
+    if (navigator.canShare && !navigator.canShare({ files:[file] })){
+      throw new Error('file-sharing-unsupported');
+    }
+    await navigator.share({ files:[file], title:lastGenerated.filename });
+  } catch(e){
+    if (e && e.name === 'AbortError') return; // user dismissed the share sheet
+    statusEl.textContent = "Couldn't open the share sheet on this device — use Copy to clipboard instead.";
+    statusEl.className = 'status error';
+  }
+}
+
+async function handleCopy(){
+  const box = document.getElementById('preview-box');
+  const statusEl = document.getElementById('status-msg');
+  if (!box.value){
+    statusEl.textContent = 'Nothing to copy yet — click Generate first.';
+    statusEl.className = 'status error';
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(box.value);
+    statusEl.textContent = 'Copied to clipboard.';
+    statusEl.className = 'status success';
+  } catch(e){
+    box.removeAttribute('readonly');
+    box.focus();
+    box.select();
+    document.execCommand('copy');
+    box.setAttribute('readonly', 'true');
+    statusEl.textContent = 'Copied to clipboard.';
+    statusEl.className = 'status success';
+  }
+}
+
+function handleClear(){
+  if (!currentFrameworkId) return;
+  const fw = FRAMEWORKS[currentFrameworkId];
+  fw.fields.forEach((f, i) => {
+    document.getElementById(`field-input-${i}`).value = '';
+  });
+  document.getElementById('preview-box').value = '';
+  lastGenerated = null;
+  const shareBtn = document.getElementById('share-btn');
+  if (shareBtn) shareBtn.setAttribute('disabled', 'true');
+  const statusEl = document.getElementById('status-msg');
+  statusEl.textContent = '';
+  statusEl.className = 'status';
+}
+</script>
+</body>
+</html>
