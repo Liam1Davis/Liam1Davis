@@ -192,9 +192,38 @@
   }
   .settings-panel[hidden]{display:none;}
   :root[data-theme="aurora"] .settings-panel{
+    background:rgba(20,14,36,.96);
+    border-color:rgba(168,85,247,.4);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
   }
+  .settings-panel-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .settings-panel-title{
+    font-size:.85rem;
+    font-weight:700;
+    color:var(--text);
+  }
+  .settings-close-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--muted);
+    font-size:.95rem;
+    line-height:1;
+    cursor:pointer;
+    transition:background-color .15s ease, color .15s ease;
+  }
+  .settings-close-btn:hover{background:var(--btn-secondary-bg);color:var(--text);}
   .settings-section{margin-bottom:16px;}
   .settings-section:last-child{margin-bottom:0;}
   .settings-section h4{
@@ -266,6 +295,15 @@
     letter-spacing:-0.02em;
     color:var(--text);
     font-family:var(--heading-font);
+    margin-left:1.5in;
+  }
+  @media (max-width:600px){
+    /* 1.5in would overrun a phone screen, so scale the indent down to
+       something that still reads as an indent without breaking layout. */
+    .home-header h1,
+    .fw-header h1{
+      margin-left:24px;
+    }
   }
   .header-divider{
     border:none;
@@ -275,8 +313,9 @@
 
   /* ---------- Home page ---------- */
   .home-header h1{
-    font-size:2.4rem;
-    margin:0 0 12px;
+    font-size:3.12rem;
+    margin-top:0;
+    margin-bottom:12px;
   }
   .hero-subtitle{
     color:var(--muted);
@@ -374,12 +413,40 @@
   }
   .home-footer{
     margin-top:36px;
-    padding-top:20px;
-    border-top:1px solid var(--border);
-    color:var(--muted);
-    font-size:.88rem;
   }
-  .home-footer code{
+
+  /* ---------- Prominent info callout (file-naming / output note) ---------- */
+  .info-note{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    background:var(--btn-tint-bg);
+    border:1px solid var(--border);
+    border-left:4px solid var(--accent);
+    border-radius:10px;
+    padding:14px 16px;
+    margin:24px 0;
+  }
+  .info-note-icon{
+    flex:none;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.78rem;
+    font-weight:800;
+  }
+  .info-note p{
+    margin:0;
+    color:var(--text);
+    font-size:.88rem;
+    line-height:1.55;
+  }
+  .info-note code{
     background:var(--code-bg);
     padding:2px 6px;
     border-radius:4px;
@@ -403,7 +470,7 @@
     color:var(--muted);
   }
   .dev-logo{
-    height:26px;
+    height:52px;
     width:auto;
     border-radius:5px;
     display:block;
@@ -451,8 +518,9 @@
   }
   .back-link:hover{color:var(--accent-dark);text-decoration:underline;}
   .fw-header h1{
-    margin:0 0 10px;
-    font-size:1.9rem;
+    margin-top:0;
+    margin-bottom:10px;
+    font-size:2.47rem;
   }
   .fw-header .fw-subheader{
     color:var(--muted);
@@ -554,10 +622,10 @@
   /* ---------- Small screens / phones ---------- */
   @media (max-width:600px){
     #app{padding:20px 14px 48px;}
-    .home-header h1{font-size:1.7rem;}
+    .home-header h1{font-size:2.21rem;}
     .hero-subtitle{font-size:.95rem;}
     .header-divider{margin:16px 0 20px;}
-    .fw-header h1{font-size:1.5rem;}
+    .fw-header h1{font-size:1.95rem;}
     .fw-header .fw-subheader{font-size:.92rem;}
     .card{padding:16px;}
     .fields{padding:4px 14px;}
@@ -576,6 +644,10 @@
     <span class="gear-icon">⚙</span> Settings
   </button>
   <div class="settings-panel" id="settings-panel" hidden>
+    <div class="settings-panel-header">
+      <span class="settings-panel-title">Settings</span>
+      <button type="button" class="settings-close-btn" onclick="toggleSettings(false)" aria-label="Close settings">✕</button>
+    </div>
     <div class="settings-section">
       <h4>Appearance</h4>
       <div class="theme-switcher" role="group" aria-label="Colour theme">
@@ -733,7 +805,7 @@ function setTheme(id){
 
 /* Apply the saved (or default) theme immediately — this script tag runs
    after the settings markup above it, so the buttons already exist. */
-applyTheme(getStoredTheme() || 'slate');
+applyTheme(getStoredTheme() || 'aurora');
 
 /* ==========================================================================
    Settings menu (Appearance + Output folder) — a single persistent panel
@@ -797,8 +869,31 @@ function renderFramework(id){
   updatePreview();
 }
 
+/* Appended to the end of every generated prompt — fixed reliability
+   guardrails and a self-check list for the AI processing the prompt. */
+const RELIABILITY_BLOCK = `UNIVERSAL RELIABILITY RULES:
+
+- Do not invent facts, sources, citations, quotations, statistics, names, dates, URLs, product features, APIs, or results.
+- Do not guess missing, ambiguous, contradictory, or unverified information.
+- Clearly distinguish verified facts, user-provided information, inference, estimate, opinion, and uncertainty.
+- If a missing or uncertain detail would materially change the answer, ask one concise clarification question or request user approval before using it.
+- Follow the requested output format, audience level, tone, length, and constraints.
+- Use clear, natural, specific language. Avoid generic filler, repetition, exaggerated certainty, and stereotypical AI phrasing.
+- Do not expose private chain-of-thought. Provide only the answer, essential reasoning summary, assumptions, calculations, evidence, or limitations needed by the user.
+
+
+FRAMEWORK CHECKLIST:
+
+[ ] Have I completed every explicit requested task?
+[ ] Have I followed the requested format, tone, length, audience, and constraints?
+[ ] Have I avoided invented facts, unsupported assumptions, and fabricated citations?
+[ ] Have I clearly labelled any material uncertainty, inference, estimate, or limitation?
+[ ] Have I used a natural, direct, non-repetitive writing style?
+[ ] If uncertainty materially affects the answer, have I asked for clarification or user approval rather than guessing?`;
+
 /* Builds the compiled "- Label: value" lines for the currently open
-   framework, from whatever is in the fields right now. */
+   framework, from whatever is in the fields right now, plus the fixed
+   reliability rules and checklist appended at the end. */
 function getCompiledContent(){
   if (!currentFrameworkId) return { lines: [], content: '' };
   const fw = FRAMEWORKS[currentFrameworkId];
@@ -808,7 +903,10 @@ function getCompiledContent(){
     const val = el ? el.value.trim() : '';
     if (val) lines.push(`- ${f.label}: ${val}`);
   });
-  return { lines, content: lines.length ? lines.join('\n') + '\n' : '' };
+  const content = lines.length
+    ? lines.join('\n') + '\n\n' + RELIABILITY_BLOCK + '\n'
+    : '';
+  return { lines, content };
 }
 
 /* Keeps the "Compiled prompt" preview in sync with the fields as the
@@ -865,9 +963,19 @@ function homeHTML(){
     </header>
     <p class="section-label">Choose a framework</p>
     <div class="card-grid">${cards}</div>
-    <footer class="home-footer">
+    <footer class="home-footer">${fileNoteHTML()}</footer>
+  `;
+}
+
+/* Shared, visually prominent reminder of how generated files are named and
+   saved — shown on the home page AND right by the Generate button on every
+   framework page, so it's relevant at the moment it actually matters. */
+function fileNoteHTML(){
+  return `
+    <div class="info-note">
+      <span class="info-note-icon">i</span>
       <p>Files are named <code>PromptXXXDDMMYYYY.txt</code> (e.g. <code>Prompt00118092026.txt</code>) and numbered consecutively each day, starting again at 001 the next day. The first time you generate a file, you'll be asked to choose your output folder (e.g. your "AI Prompts Output" folder in OneDrive) — after that, files save straight into it.</p>
-    </footer>
+    </div>
   `;
 }
 
@@ -892,6 +1000,7 @@ function frameworkHTML(fw){
       <hr class="header-divider">
     </header>
     <div class="fields">${rows}</div>
+    ${fileNoteHTML()}
     <div class="action-bar">
       <button class="btn primary" onclick="handleGenerate()">Generate and Save Text File</button>
       ${supportsShare() ? `<button class="btn secondary" id="share-btn" onclick="handleShare()" disabled>Share…</button>` : ''}
