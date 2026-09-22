@@ -20,6 +20,7 @@
     --error-bg:#fdecec;
     --error-text:#a92323;
     --radius:10px;
+    --radius-lg:18px;
     --shadow-card:0 4px 20px -2px rgba(15,23,42,.08);
     --focus-ring:0 0 0 3px rgba(79,70,229,.15);
     --heading-font:inherit;
@@ -36,6 +37,10 @@
     --output-text:var(--text);
     --output-border:var(--border);
     --body-bg:var(--bg);
+    --dot-grid:none;
+    --watermark-color:rgba(15,23,42,.045);
+    --readiness-bg:var(--panel);
+    --stepper-line:var(--border);
   }
   :root[data-theme="aurora"]{
     --bg:#0C0A14;
@@ -50,6 +55,7 @@
     --error-bg:rgba(239,68,68,.14);
     --error-text:#fca5a5;
     --radius:12px;
+    --radius-lg:20px;
     --shadow-card:0 0 18px rgba(192,132,252,.16);
     --focus-ring:0 0 0 3px rgba(192,132,252,.35);
     --heading-font:inherit;
@@ -66,6 +72,10 @@
     --output-text:var(--text);
     --output-border:rgba(168,85,247,.3);
     --body-bg:radial-gradient(ellipse at top, #17102B 0%, #09090E 65%);
+    --dot-grid:radial-gradient(rgba(168,85,247,.16) 1px, transparent 1px);
+    --watermark-color:rgba(243,244,246,.045);
+    --readiness-bg:rgba(20,14,36,.55);
+    --stepper-line:rgba(168,85,247,.28);
   }
   :root[data-theme="editorial"]{
     --bg:#FAF8F5;
@@ -80,6 +90,7 @@
     --error-bg:#FBEAE5;
     --error-text:#9A3412;
     --radius:10px;
+    --radius-lg:16px;
     --shadow-card:0 2px 10px rgba(46,42,37,.07);
     --focus-ring:0 0 0 3px rgba(180,83,9,.18);
     --heading-font:Georgia,"Iowan Old Style","Palatino Linotype",serif;
@@ -96,24 +107,71 @@
     --output-text:#F4EFE6;
     --output-border:#4A4136;
     --body-bg:var(--bg);
+    --dot-grid:none;
+    --watermark-color:rgba(46,42,37,.05);
+    --readiness-bg:var(--panel);
+    --stepper-line:var(--border);
+  }
+  :root{
+    --font-mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    --container:1160px;
   }
   *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{
+      animation-duration:0.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:0.001ms !important;
+      scroll-behavior:auto !important;
+    }
+  }
   body{
     margin:0;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--body-bg);
-    background-attachment:fixed;
+    background-color:var(--bg);
+    background-image:var(--body-bg);
     color:var(--text);
     line-height:1.5;
     transition:background-color .2s ease, color .2s ease;
+  }
+  /* Subtle dot grid + extra glow layered on top of the existing Aurora
+     background gradient (near-black surface it was designed for); kept
+     faint enough to never compete with content, and removed at narrow
+     widths so it can't muddy small-screen legibility. background-color
+     above is the safety net so nothing ever shows through as plain white,
+     however tall the page grows. Deliberately NOT background-attachment:
+     fixed — that only paints one viewport's worth of image and leaves the
+     rest of a long page uncovered. */
+  :root[data-theme="aurora"] body{
+    background-image:var(--dot-grid), radial-gradient(circle at 52% 6%, rgba(124,58,237,.16), transparent 34%), radial-gradient(ellipse at top, #17102B 0%, #09090E 65%);
+    background-size:26px 26px, auto, auto;
+    background-repeat:repeat, no-repeat, no-repeat;
+  }
+  @media (max-width:768px){
+    :root[data-theme="aurora"] body{background-image:radial-gradient(ellipse at top, #17102B 0%, #09090E 65%);}
   }
   #app{
     max-width:960px;
     margin:0 auto;
     padding:32px 20px 64px;
+    position:relative;
+  }
+  a{color:inherit;}
+
+  /* ---------- Accessible focus visibility (keyboard users) ---------- */
+  a:focus-visible,
+  button:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex]:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+    border-radius:4px;
   }
 
-  /* ---------- Top bar: brand (left) + Settings menu (right) ---------- */
+  /* ---------- Top bar: brand (left) + nav + Settings (right) ---------- */
   .topbar{
     position:sticky;
     top:0;
@@ -121,44 +179,80 @@
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap:12px;
+    gap:16px;
+    min-height:76px;
     padding:12px 20px;
     background:var(--panel);
     border-bottom:1px solid var(--border);
     transition:background-color .2s ease, border-color .2s ease;
   }
   :root[data-theme="aurora"] .topbar{
+    background:rgba(20,19,29,.92);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
+  }
+  .topbar-left{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    min-width:0;
   }
   .brand{
     display:inline-flex;
     align-items:center;
-    gap:8px;
-    font-weight:800;
-    font-size:1rem;
-    letter-spacing:-.01em;
-    color:var(--text);
+    gap:10px;
     text-decoration:none;
     font-family:var(--heading-font);
   }
-  .brand:hover{color:var(--accent);}
+  .brand-text{display:flex;flex-direction:column;line-height:1.15;}
+  .brand-wordmark{
+    font-weight:850;
+    font-size:.95rem;
+    letter-spacing:.055em;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+  .brand:hover .brand-wordmark{color:var(--accent);}
+  .brand-subtitle{
+    font-size:.67rem;
+    font-weight:650;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:1px;
+  }
   .brand-mark{
-    width:22px;
-    height:22px;
-    border-radius:6px;
+    width:32px;
+    height:32px;
+    border-radius:9px;
     background:var(--accent);
     color:#fff;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:.68rem;
+    font-size:.78rem;
     font-weight:800;
     flex:none;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
+  :root[data-theme="aurora"] .brand-mark{
+    background:linear-gradient(135deg,#A855F7,#7C3AED);
+    box-shadow:0 0 20px rgba(168,85,247,.32);
+  }
+  .topbar-nav-link{
+    font-size:.85rem;
+    font-weight:700;
+    color:var(--muted);
+    text-decoration:none;
+    padding:6px 2px;
+    border-bottom:2px solid transparent;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .topbar-nav-link:hover{color:var(--text);}
+  .topbar-nav-link.current{color:var(--accent);border-bottom-color:var(--accent);}
   .settings-wrap{
     position:relative;
+    flex:none;
   }
   .settings-toggle{
     display:inline-flex;
@@ -267,15 +361,19 @@
   .theme-swatch[data-theme-btn="aurora"] .swatch-dot{background:linear-gradient(135deg,#A855F7,#EC4899);}
   .theme-swatch[data-theme-btn="editorial"] .swatch-dot{background:#B45309;}
   @media (max-width:600px){
-    .topbar{padding:10px 14px;}
-    .brand{font-size:.9rem;}
-    .brand-mark{width:20px;height:20px;font-size:.62rem;}
+    .topbar{padding:10px 14px;min-height:64px;}
+    .topbar-left{gap:14px;}
+    .brand-wordmark{font-size:.82rem;}
+    .brand-subtitle,
+    .topbar-nav-link{display:none;}
+    .brand-mark{width:28px;height:28px;font-size:.68rem;}
     .settings-toggle{padding:7px 12px;font-size:.8rem;}
   }
 
   /* ---------- Aurora theme: glass panels & glow ---------- */
   :root[data-theme="aurora"] .card,
-  :root[data-theme="aurora"] .fields{
+  :root[data-theme="aurora"] .fields,
+  :root[data-theme="aurora"] .readiness-panel{
     backdrop-filter:blur(14px);
     -webkit-backdrop-filter:blur(14px);
   }
@@ -322,19 +420,52 @@
     font-size:1.05rem;
     line-height:1.55;
     max-width:640px;
-    margin:0;
+    margin:0 0 22px;
+  }
+  .hero-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:30px;
+  }
+  .hero-guide{margin:0 0 30px;}
+  .hero-guide summary{
+    cursor:pointer;
+    font-size:.85rem;
+    font-weight:700;
+    color:var(--accent);
+    list-style:none;
+  }
+  .hero-guide summary::-webkit-details-marker{display:none;}
+  .hero-guide summary:hover{text-decoration:underline;}
+  .hero-guide[open] summary{margin-bottom:12px;}
+  .hero-guide-body{
+    background:var(--btn-tint-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    color:var(--text);
+    font-size:.9rem;
+    line-height:1.6;
   }
   .feature-row{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
-    gap:26px;
+    gap:0;
     margin-bottom:36px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:22px 26px;
+    box-shadow:var(--shadow-card);
   }
   .feature-item{
     display:flex;
     gap:12px;
     align-items:flex-start;
+    padding:0 14px;
   }
+  .feature-item + .feature-item{border-left:1px solid var(--border);}
   .feature-badge{
     flex:none;
     width:26px;
@@ -369,24 +500,32 @@
     margin:0 0 14px;
   }
   @media (max-width:720px){
-    .feature-row{grid-template-columns:1fr;gap:18px;}
+    .feature-row{grid-template-columns:1fr;gap:16px;padding:18px;}
+    .feature-item + .feature-item{border-left:none;border-top:1px solid var(--border);padding-top:16px;}
   }
   .card-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
     gap:18px;
+    align-items:stretch;
   }
   .card{
     background:var(--panel);
     border:1px solid var(--border);
-    border-left:4px solid var(--accent);
+    border-left:4px solid var(--card-accent, var(--accent));
     border-radius:var(--radius);
     padding:20px;
     display:flex;
     flex-direction:column;
     box-shadow:var(--shadow-card);
-    transition:background-color .2s ease, border-color .2s ease;
+    transition:transform .18s ease, box-shadow .18s ease, background-color .2s ease, border-color .2s ease;
   }
+  .card:hover{transform:translateY(-2px);box-shadow:0 10px 28px -6px rgba(15,23,42,.16);}
+  :root[data-theme="aurora"] .card:hover{box-shadow:0 0 26px rgba(192,132,252,.22);}
+  @media (prefers-reduced-motion: reduce){
+    .card:hover{transform:none;}
+  }
+  .card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
   .card-tag{
     display:inline-block;
     font-size:.72rem;
@@ -397,9 +536,10 @@
     background:var(--card-tag-bg);
     padding:3px 8px;
     border-radius:20px;
-    margin-bottom:10px;
     align-self:flex-start;
   }
+  .card-motif{flex:none;color:var(--card-accent, var(--accent));opacity:.85;}
+  .card-motif svg{display:block;width:28px;height:28px;}
   .card h2{
     margin:0 0 8px;
     font-size:1.25rem;
@@ -479,28 +619,41 @@
     .site-footer{padding:6px 14px 24px;justify-content:center;}
   }
 
-  /* ---------- Buttons ---------- */
+  /* ---------- Buttons: primary (filled) / secondary (outline) / ghost (text link) ---------- */
   .btn{
-    display:inline-block;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
     border:none;
     border-radius:8px;
-    padding:9px 16px;
+    padding:11px 18px;
     font-size:.92rem;
     font-weight:600;
     cursor:pointer;
     text-decoration:none;
     background:var(--btn-tint-bg);
     color:var(--accent-dark);
-    transition:background-color .15s ease;
+    min-height:40px;
+    transition:background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
   }
   .btn:hover{background:var(--btn-tint-hover);}
   .btn.primary{background:var(--accent);color:#fff;}
   .btn.primary:hover{background:var(--accent-dark);}
-  .btn.secondary{background:var(--btn-secondary-bg);color:var(--text);}
-  .btn.secondary:hover{background:var(--btn-secondary-hover);}
-  .btn.ghost{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--border);}
-  .btn.ghost:hover{background:var(--btn-secondary-bg);}
-  .btn.small{padding:5px 10px;font-size:.8rem;}
+  .btn.secondary{
+    background:transparent;
+    color:var(--text);
+    box-shadow:inset 0 0 0 1.5px var(--border);
+  }
+  .btn.secondary:hover{box-shadow:inset 0 0 0 1.5px var(--accent);background:var(--btn-tint-bg);}
+  .btn.ghost{
+    background:transparent;
+    color:var(--muted);
+    padding-left:6px;
+    padding-right:6px;
+    min-height:auto;
+  }
+  .btn.ghost:hover{color:var(--accent);text-decoration:underline;background:transparent;}
+  .btn.small{padding:8px 10px;font-size:.8rem;min-height:32px;}
   .btn:disabled{opacity:.45;cursor:not-allowed;}
   .btn:disabled:hover{background:var(--btn-tint-bg);}
 
@@ -517,10 +670,58 @@
     transition:color .15s ease;
   }
   .back-link:hover{color:var(--accent-dark);text-decoration:underline;}
+
+  /* ---------- Framework identity band ---------- */
+  .fw-identity{position:relative;overflow:hidden;}
+  .fw-watermark{
+    position:absolute;
+    top:-0.35em;
+    right:-0.05em;
+    margin:0;
+    font-size:7rem;
+    font-weight:800;
+    line-height:1;
+    letter-spacing:-.03em;
+    color:var(--watermark-color);
+    white-space:nowrap;
+    pointer-events:none;
+    user-select:none;
+    z-index:0;
+  }
+  @media (max-width:1099px){ .fw-watermark{font-size:5rem;} }
+  @media (max-width:768px){ .fw-watermark{display:none;} }
+  .fw-eyebrow-row{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:6px;
+    flex-wrap:wrap;
+  }
+  .fw-eyebrow{
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .fw-motif{flex:none;display:inline-flex;color:var(--fw-accent, var(--accent));}
+  .fw-motif svg{display:block;width:34px;height:34px;}
+  .fw-header{position:relative;z-index:1;}
   .fw-header h1{
     margin-top:0;
     margin-bottom:10px;
-    font-size:2.47rem;
+    font-size:4.94rem;
+  }
+  .fw-stageline{
+    font-size:.85rem;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--fw-accent, var(--accent));
+    margin:0 0 12px;
+    font-family:var(--font-mono);
   }
   .fw-header .fw-subheader{
     color:var(--muted);
@@ -528,35 +729,159 @@
     max-width:680px;
     margin:0;
   }
+  .fw-guide{margin:18px 0 0;position:relative;z-index:1;}
+  .fw-guide summary{
+    cursor:pointer;
+    font-size:.85rem;
+    font-weight:700;
+    color:var(--fw-accent, var(--accent));
+    list-style:none;
+    display:inline-block;
+  }
+  .fw-guide summary::-webkit-details-marker{display:none;}
+  .fw-guide summary:hover{text-decoration:underline;}
+  .fw-guide-body{
+    margin-top:10px;
+    background:var(--btn-tint-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    color:var(--text);
+    font-size:.88rem;
+    line-height:1.6;
+  }
+
+  /* ---------- Progress stepper ---------- */
+  .fw-stepper-wrap{margin:26px 0 8px;position:relative;z-index:1;}
+  .fw-stepper{
+    display:flex;
+    align-items:flex-start;
+    gap:0;
+    overflow-x:auto;
+    padding-bottom:6px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .fw-step{
+    display:flex;
+    align-items:center;
+    flex:none;
+  }
+  .fw-step-main{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:76px;}
+  .fw-step-dot{
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    border:2px solid var(--border);
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.62rem;
+    font-weight:800;
+    font-family:var(--font-mono);
+    background:var(--panel);
+    transition:background-color .18s ease, border-color .18s ease, color .18s ease;
+  }
+  .fw-step.is-complete .fw-step-dot{
+    background:var(--fw-accent, var(--accent));
+    border-color:var(--fw-accent, var(--accent));
+    color:#fff;
+  }
+  .fw-step-label{
+    font-size:.66rem;
+    font-weight:700;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-align:center;
+    white-space:nowrap;
+  }
+  .fw-step.is-complete .fw-step-label{color:var(--text);}
+  .fw-step-connector{
+    width:32px;
+    height:2px;
+    background:var(--stepper-line);
+    margin:9px 4px 0;
+    flex:none;
+    transition:background-color .18s ease;
+  }
+  .fw-step.is-complete + .fw-step .fw-step-connector,
+  .fw-step-connector.is-filled{background:var(--fw-accent, var(--accent));}
+  @media (max-width:600px){
+    .fw-stepper-wrap::after{
+      content:"";
+      display:block;
+    }
+    .fw-step-main{min-width:60px;}
+    .fw-step-connector{width:18px;}
+  }
+
+  /* ---------- Workspace layout: form column + Prompt Readiness column ---------- */
+  .fw-workspace{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:26px;
+    align-items:start;
+    margin-top:22px;
+  }
+  @media (min-width:1100px){
+    .fw-workspace{grid-template-columns:minmax(0,1fr) 300px;}
+  }
+
+  /* ---------- Staged fields ---------- */
   .fields{
     background:var(--panel);
     border:1px solid var(--border);
     border-radius:var(--radius);
-    padding:8px 20px;
+    padding:6px 20px;
     box-shadow:var(--shadow-card);
     transition:background-color .2s ease, border-color .2s ease;
   }
   .field-row{
     display:flex;
     gap:20px;
-    padding:16px 0;
+    padding:18px 0;
     border-bottom:1px solid var(--border);
     align-items:flex-start;
+    border-left:3px solid transparent;
+    transition:border-color .18s ease;
   }
+  .field-row.is-complete{border-left-color:var(--fw-accent, var(--accent));}
   .field-row:last-child{border-bottom:none;}
   .field-label{
     flex:0 0 34%;
     max-width:34%;
   }
+  .field-stage-title{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-bottom:4px;
+    flex-wrap:wrap;
+  }
+  .field-stage-num{
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    font-weight:700;
+    color:var(--fw-accent, var(--accent));
+    flex:none;
+  }
   .field-label label{
-    display:block;
+    display:inline;
     font-weight:600;
     font-size:.95rem;
-    margin-bottom:4px;
+    color:var(--text);
   }
   .field-help{
     color:var(--muted);
     font-size:.8rem;
+    margin-bottom:6px;
+  }
+  .field-tip{
+    color:var(--muted);
+    font-size:.76rem;
+    font-style:italic;
+    margin:0;
   }
   .field-input{flex:1;}
   .field-input textarea{
@@ -602,13 +927,27 @@
   .preview-header{
     display:flex;
     justify-content:space-between;
-    align-items:center;
+    align-items:flex-start;
+    gap:10px;
     margin-bottom:8px;
   }
-  .preview-header h3{margin:0;font-size:1rem;color:var(--muted);font-weight:600;}
+  .preview-header-text h3{
+    margin:0 0 2px;
+    font-size:.78rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--text);
+    font-weight:800;
+  }
+  .preview-status-line{
+    margin:0;
+    font-size:.78rem;
+    color:var(--muted);
+    font-family:var(--font-mono);
+  }
   #preview-box{
     width:100%;
-    font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+    font-family:var(--font-mono);
     font-size:16px; /* 16px minimum avoids automatic zoom on iOS Safari */
     padding:12px;
     border:1px solid var(--output-border);
@@ -619,13 +958,121 @@
     transition:background-color .2s ease, color .2s ease, border-color .2s ease;
   }
 
+  /* ---------- Prompt Readiness panel ---------- */
+  .readiness-panel{
+    background:var(--readiness-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:18px;
+    box-shadow:var(--shadow-card);
+    position:sticky;
+    top:96px;
+  }
+  @media (max-width:1099px){
+    .readiness-panel{position:static;}
+  }
+  .readiness-title{
+    margin:0 0 14px;
+    font-size:.78rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+  .readiness-fw-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:.85rem;
+    font-weight:700;
+    color:var(--text);
+    padding-bottom:12px;
+    margin-bottom:12px;
+    border-bottom:1px solid var(--border);
+  }
+  .readiness-fw-row .fw-accent-dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--fw-accent, var(--accent));
+    display:inline-block;margin-right:8px;
+  }
+  .readiness-list{
+    list-style:none;
+    margin:0 0 16px;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+  }
+  .readiness-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    font-size:.83rem;
+  }
+  .readiness-item-name{color:var(--text);}
+  .readiness-item-state{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-size:.75rem;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .readiness-item.is-complete .readiness-item-state{color:var(--success-text);}
+  .readiness-item:not(.is-complete) .readiness-item-state{color:var(--muted);}
+  .readiness-icon{flex:none;width:14px;height:14px;display:inline-block;}
+  .readiness-section{
+    font-size:.72rem;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 8px;
+  }
+  .readiness-bar-track{
+    width:100%;
+    height:8px;
+    border-radius:5px;
+    background:var(--btn-secondary-bg);
+    overflow:hidden;
+    margin-bottom:6px;
+  }
+  .readiness-bar-fill{
+    height:100%;
+    background:var(--fw-accent, var(--accent));
+    border-radius:5px;
+    transition:width .25s ease;
+  }
+  .readiness-count{
+    font-size:.8rem;
+    color:var(--muted);
+    margin:0 0 16px;
+  }
+  .readiness-next{
+    background:var(--btn-tint-bg);
+    border-radius:var(--radius);
+    padding:12px 14px;
+    margin-bottom:14px;
+  }
+  .readiness-next-label{
+    font-size:.68rem;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--fw-accent, var(--accent));
+    margin:0 0 6px;
+  }
+  .readiness-next p{margin:0;font-size:.83rem;color:var(--text);line-height:1.5;}
+  .readiness-panel .btn{width:100%;}
+
   /* ---------- Small screens / phones ---------- */
   @media (max-width:600px){
     #app{padding:20px 14px 48px;}
     .home-header h1{font-size:2.21rem;}
     .hero-subtitle{font-size:.95rem;}
     .header-divider{margin:16px 0 20px;}
-    .fw-header h1{font-size:1.95rem;}
+    .fw-header h1{font-size:3.90rem;}
     .fw-header .fw-subheader{font-size:.92rem;}
     .card{padding:16px;}
     .fields{padding:4px 14px;}
@@ -638,7 +1085,16 @@
 </head>
 <body>
 <div class="topbar">
-<a class="brand" href="#"><span class="brand-mark">AI</span>Prompt Builder</a>
+<div class="topbar-left">
+<a class="brand" href="#">
+  <span class="brand-mark">AI</span>
+  <span class="brand-text">
+    <span class="brand-wordmark">Prompt Builder</span>
+    <span class="brand-subtitle">Prompt design workspace</span>
+  </span>
+</a>
+<a class="topbar-nav-link current" id="topbar-frameworks-link" href="#">Frameworks</a>
+</div>
 <div class="settings-wrap">
   <button type="button" class="settings-toggle" id="settings-toggle-btn" onclick="toggleSettings()" aria-haspopup="true" aria-expanded="false" aria-controls="settings-panel">
     <span class="gear-icon">⚙</span> Settings
@@ -671,103 +1127,455 @@
 
 <script>
 /* ==========================================================================
-   Data: the seven prompt frameworks, their descriptions and input fields
+   Data: the seven prompt frameworks, their descriptions, fields, and the
+   brand-identity metadata (accent colour, motif, stage line, purpose,
+   recommended next step) used by the framework identity band, stepper and
+   Prompt Readiness panel.
    ========================================================================== */
 const FRAMEWORKS = {
-  rise: {
-    name: "RISE",
-    tag: "For structured tasks",
-    homeDesc: "Best for task-based prompts where structure and clarity matter. RISE tells the AI who to act as, exactly what to do, the order to do it in, and what a good result looks like.",
-    subHeader: "Give the AI a role, clear instructions, a defined sequence of steps, and the expectations for the finished output.",
-    fields: [
-      { label:"Role", help:"Who or what should the AI act as?", placeholder:"e.g. You are a senior financial analyst with 10 years of experience in SaaS budgeting." },
-      { label:"Instructions", help:"The specific task you want carried out.", placeholder:"e.g. Review the attached Q3 budget and identify the three biggest cost-saving opportunities." },
-      { label:"Steps", help:"Break the task into an ordered sequence.", placeholder:"e.g. 1) Summarise spend by category 2) Flag anomalies 3) Rank by savings potential 4) Recommend actions" },
-      { label:"Expectations", help:"What the finished output should look like.", placeholder:"e.g. Return a table with category, current spend, savings potential and a one-line rationale. Keep it under 300 words." }
+  "rise": {
+    "name": "RISE",
+    "tag": "For structured tasks",
+    "homeDesc": "Best for task-based prompts where structure and clarity matter. RISE tells the AI who to act as, exactly what to do, the order to do it in, and what a good result looks like.",
+    "subHeader": "Give the AI a role, clear instructions, a defined sequence of steps, and the expectations for the finished output.",
+    "stageLine": "Role · Instructions · Steps · End Goal",
+    "purpose": "Create clear, structured prompts for tasks where process and output quality matter.",
+    "accent": "#3B82F6",
+    "motif": "stacked-blocks",
+    "fields": [
+      {
+        "label": "Role",
+        "letter": "R",
+        "short": "Role",
+        "help": "Who or what should the AI act as?",
+        "tip": "Choose expertise that directly supports the task.",
+        "placeholder": "e.g. You are a senior financial analyst with 10 years of experience in SaaS budgeting."
+      },
+      {
+        "label": "Instructions",
+        "letter": "I",
+        "short": "Instructions",
+        "help": "The specific task you want carried out.",
+        "tip": "State the single task plainly, in one or two sentences.",
+        "placeholder": "e.g. Review the attached Q3 budget and identify the three biggest cost-saving opportunities."
+      },
+      {
+        "label": "Steps",
+        "letter": "S",
+        "short": "Steps",
+        "help": "Break the task into an ordered sequence.",
+        "tip": "Number each step so the AI follows your intended order.",
+        "placeholder": "e.g. 1) Summarise spend by category 2) Flag anomalies 3) Rank by savings potential 4) Recommend actions"
+      },
+      {
+        "label": "Expectations",
+        "letter": "E",
+        "short": "Expectations",
+        "help": "What the finished output should look like.",
+        "tip": "Describe format, length, and any success criteria.",
+        "placeholder": "e.g. Return a table with category, current spend, savings potential and a one-line rationale. Keep it under 300 words."
+      }
     ]
   },
-  race: {
-    name: "RACE",
-    tag: "For content with heavy context",
-    homeDesc: "Designed for content generation where background information significantly shapes the quality of the output. RACE front-loads context so the AI produces on-brief, on-brand results.",
-    subHeader: "Set the AI's role, the action you need, the context that shapes it, and how the work should be executed.",
-    fields: [
-      { label:"Role", help:"Who or what should the AI act as?", placeholder:"e.g. You are an experienced B2B email copywriter." },
-      { label:"Action", help:"The specific output you need.", placeholder:"e.g. Write a 3-email nurture sequence for trial users who haven't logged in for 7 days." },
-      { label:"Context", help:"Background that shapes the quality of the result.", placeholder:"e.g. Our product is a project management tool for creative agencies; tone is friendly but not salesy; audience is time-poor founders." },
-      { label:"Execution", help:"Constraints and requirements for how the work is carried out.", placeholder:"e.g. Each email under 120 words, one clear call-to-action, subject line included, no exclamation marks." }
+  "race": {
+    "name": "RACE",
+    "tag": "For content with heavy context",
+    "homeDesc": "Designed for content generation where background information significantly shapes the quality of the output. RACE front-loads context so the AI produces on-brief, on-brand results.",
+    "subHeader": "Set the AI's role, the action you need, the context that shapes it, and what a successful result should look like.",
+    "stageLine": "Role · Action · Context · Expectations",
+    "purpose": "Create context-rich prompts that keep the AI aligned with the brief and the intended result.",
+    "accent": "#A855F7",
+    "motif": "connected-nodes",
+    "fields": [
+      {
+        "label": "Role",
+        "letter": "R",
+        "short": "Role",
+        "help": "Who or what should the AI act as?",
+        "tip": "Choose expertise that directly supports the task.",
+        "placeholder": "e.g. You are an experienced B2B email copywriter."
+      },
+      {
+        "label": "Action",
+        "letter": "A",
+        "short": "Action",
+        "help": "The specific output you need.",
+        "tip": "Name the desired deliverable and outcome.",
+        "placeholder": "e.g. Write a 3-email nurture sequence for trial users who haven't logged in for 7 days."
+      },
+      {
+        "label": "Context",
+        "letter": "C",
+        "short": "Context",
+        "help": "Background that shapes the quality of the result.",
+        "tip": "Include what the AI must know and must not assume.",
+        "placeholder": "e.g. Our product is a project management tool for creative agencies; tone is friendly but not salesy; audience is time-poor founders."
+      },
+      {
+        "label": "Expectations",
+        "letter": "E",
+        "short": "Expectations",
+        "help": "What does a useful final result look like?",
+        "tip": "Specify format, tone, length, or success criteria.",
+        "placeholder": "e.g. Each email reads warm but professional, stays under 120 words, includes one clear call-to-action and a subject line, and avoids exclamation marks."
+      }
     ]
   },
-  cot: {
-    name: "Chain-of-Thought",
-    tag: "For reasoning and logic",
-    homeDesc: "Asks the AI to show its reasoning step-by-step rather than jumping straight to an answer, which improves accuracy on logic, analysis and multi-factor decisions.",
-    subHeader: "Walk the AI through a numbered chain of reasoning stages before it gives a final answer.",
-    fields: [
-      { label:"Task / Question", help:"The problem or question to reason through.", placeholder:"e.g. Should we switch our hosting provider from Provider A to Provider B?" },
-      { label:"Context / Background", help:"Relevant background information.", placeholder:"e.g. Current spend is £4k/month, a 99.9% uptime SLA is required, migration would take roughly 2 weeks." },
-      { label:"Reasoning Step 1", help:"First stage of the reasoning chain.", placeholder:"e.g. List all relevant factors (cost, reliability, support, migration effort)." },
-      { label:"Reasoning Step 2", help:"Second stage of the reasoning chain.", placeholder:"e.g. Analyse each factor for both providers." },
-      { label:"Reasoning Step 3", help:"Third stage of the reasoning chain.", placeholder:"e.g. Weigh the trade-offs against our priorities." },
-      { label:"Final Instruction", help:"What the AI should conclude with, after reasoning through the steps.", placeholder:"e.g. State a clear recommendation with a one-paragraph justification." }
+  "cot": {
+    "name": "Chain-of-Thought",
+    "tag": "For reasoning and logic",
+    "homeDesc": "Asks the AI to show its reasoning step-by-step rather than jumping straight to an answer, which improves accuracy on logic, analysis and multi-factor decisions.",
+    "subHeader": "Walk the AI through a numbered chain of reasoning stages before it gives a final answer.",
+    "stageLine": "Define · Reason · Check · Answer",
+    "purpose": "Structure complex reasoning, logic, and multi-step analysis.",
+    "accent": "#22D3EE",
+    "motif": "connected-path",
+    "fields": [
+      {
+        "label": "Role",
+        "letter": null,
+        "short": "Role",
+        "help": "Who or what should the AI act as?",
+        "tip": "Ground the reasoning in relevant expertise or perspective.",
+        "placeholder": "e.g. You are a senior infrastructure engineer evaluating hosting options."
+      },
+      {
+        "label": "Task / Question",
+        "letter": null,
+        "short": "Task",
+        "help": "The problem or question to reason through.",
+        "tip": "State the exact decision or question needing an answer.",
+        "placeholder": "e.g. Should we switch our hosting provider from Provider A to Provider B?"
+      },
+      {
+        "label": "Context / Background",
+        "letter": null,
+        "short": "Context",
+        "help": "Relevant background information.",
+        "tip": "Include only the facts the reasoning actually depends on.",
+        "placeholder": "e.g. Current spend is £4k/month, a 99.9% uptime SLA is required, migration would take roughly 2 weeks."
+      },
+      {
+        "label": "Reasoning Step 1",
+        "letter": null,
+        "short": "Step 1",
+        "help": "First stage of the reasoning chain.",
+        "tip": "Keep each step focused on one part of the analysis.",
+        "placeholder": "e.g. List all relevant factors (cost, reliability, support, migration effort)."
+      },
+      {
+        "label": "Reasoning Step 2",
+        "letter": null,
+        "short": "Step 2",
+        "help": "Second stage of the reasoning chain.",
+        "tip": "Build directly on what the previous step found.",
+        "placeholder": "e.g. Analyse each factor for both providers."
+      },
+      {
+        "label": "Reasoning Step 3",
+        "letter": null,
+        "short": "Step 3",
+        "help": "Third stage of the reasoning chain.",
+        "tip": "Use this step to weigh trade-offs or compare options.",
+        "placeholder": "e.g. Weigh the trade-offs against our priorities."
+      },
+      {
+        "label": "Final Instruction",
+        "letter": null,
+        "short": "Final Instruction",
+        "help": "What the AI should conclude with, after reasoning through the steps.",
+        "tip": "Say exactly what the concluding answer should contain.",
+        "placeholder": "e.g. State a clear recommendation with a one-paragraph justification."
+      }
     ]
   },
-  tot: {
-    name: "Tree-of-Thought",
-    tag: "For exploring options",
-    homeDesc: "Explores several distinct solution approaches in parallel, weighs each one against the others, and then selects the strongest instead of committing to the first idea.",
-    subHeader: "Have the AI branch into multiple approaches, evaluate each one, then recommend the best path.",
-    fields: [
-      { label:"Problem / Goal", help:"The problem or goal to explore approaches for.", placeholder:"e.g. How should we reduce customer churn by 15% this quarter?" },
-      { label:"Approach 1", help:"A distinct strategy or path worth exploring.", placeholder:"e.g. Improve onboarding" },
-      { label:"Approach 2", help:"A second, different strategy.", placeholder:"e.g. Introduce a loyalty programme" },
-      { label:"Approach 3", help:"A third, different strategy.", placeholder:"e.g. Proactive customer support outreach" },
-      { label:"Evaluation Criteria", help:"What each approach should be judged against.", placeholder:"e.g. Cost, time to implement, expected impact, risk." },
-      { label:"Final Selection Instruction", help:"How the AI should conclude and choose.", placeholder:"e.g. Compare all approaches against the criteria above and recommend one, with reasoning." }
+  "tot": {
+    "name": "Tree-of-Thought",
+    "tag": "For exploring options",
+    "homeDesc": "Explores several distinct solution approaches in parallel, weighs each one against the others, and then selects the strongest instead of committing to the first idea.",
+    "subHeader": "Have the AI branch into multiple approaches, evaluate each one, then recommend the best path.",
+    "stageLine": "Explore · Compare · Evaluate · Choose",
+    "purpose": "Explore several viable approaches before making a recommendation.",
+    "accent": "#34D399",
+    "motif": "branching-paths",
+    "fields": [
+      {
+        "label": "Role",
+        "letter": null,
+        "short": "Role",
+        "help": "Who or what should the AI act as?",
+        "tip": "Ground the reasoning in relevant expertise or perspective.",
+        "placeholder": "e.g. You are a strategic consultant advising on customer retention."
+      },
+      {
+        "label": "Problem / Goal",
+        "letter": null,
+        "short": "Problem",
+        "help": "The problem or goal to explore approaches for.",
+        "tip": "Frame the goal so genuinely different approaches are possible.",
+        "placeholder": "e.g. How should we reduce customer churn by 15% this quarter?"
+      },
+      {
+        "label": "Approach 1",
+        "letter": null,
+        "short": "Approach 1",
+        "help": "A distinct strategy or path worth exploring.",
+        "tip": "Describe the approach in a few concrete words.",
+        "placeholder": "e.g. Improve onboarding"
+      },
+      {
+        "label": "Approach 2",
+        "letter": null,
+        "short": "Approach 2",
+        "help": "A second, different strategy.",
+        "tip": "Make sure this is meaningfully different from Approach 1.",
+        "placeholder": "e.g. Introduce a loyalty programme"
+      },
+      {
+        "label": "Approach 3",
+        "letter": null,
+        "short": "Approach 3",
+        "help": "A third, different strategy.",
+        "tip": "A third distinct option gives the comparison more range.",
+        "placeholder": "e.g. Proactive customer support outreach"
+      },
+      {
+        "label": "Evaluation Criteria",
+        "letter": null,
+        "short": "Criteria",
+        "help": "What each approach should be judged against.",
+        "tip": "List the factors that should decide between the approaches.",
+        "placeholder": "e.g. Cost, time to implement, expected impact, risk."
+      },
+      {
+        "label": "Final Selection Instruction",
+        "letter": null,
+        "short": "Final Selection",
+        "help": "How the AI should conclude and choose.",
+        "tip": "Say how the AI should weigh the criteria to choose.",
+        "placeholder": "e.g. Compare all approaches against the criteria above and recommend one, with reasoning."
+      }
     ]
   },
-  react: {
-    name: "ReAct",
-    tag: "For action-based tasks",
-    homeDesc: "Combines reasoning with action-taking, cycling through thought, action and observation, for tasks that need information gathered or steps carried out in sequence.",
-    subHeader: "Loop the AI through Thought, Action and Observation until the task is complete.",
-    fields: [
-      { label:"Goal / Task", help:"What needs to be accomplished.", placeholder:"e.g. Find the best flight option and draft a travel itinerary." },
-      { label:"Available Tools / Actions", help:"What the AI is allowed to use or do.", placeholder:"e.g. Web search, calculator, calendar lookup." },
-      { label:"Thought Instruction", help:"How the AI should reason before acting.", placeholder:"e.g. Before each action, explain what you need to find out and why." },
-      { label:"Action Instruction", help:"How actions should be described.", placeholder:"e.g. State the exact action to take, e.g. 'Search for flights from London to Lisbon on 3 October'." },
-      { label:"Observation Instruction", help:"How results should be reviewed before continuing.", placeholder:"e.g. Summarise what was learned from each action before deciding the next step." },
-      { label:"Final Answer Instruction", help:"What the AI should deliver once the loop is finished.", placeholder:"e.g. Once the itinerary is complete, present it as a day-by-day schedule." }
+  "react": {
+    "name": "ReAct",
+    "tag": "For action-based tasks",
+    "homeDesc": "Combines reasoning with action-taking, cycling through thought, action and observation, for tasks that need information gathered or steps carried out in sequence.",
+    "subHeader": "Loop the AI through Thought, Action and Observation until the task is complete.",
+    "stageLine": "Reason · Act · Observe · Refine",
+    "purpose": "Guide action-based tasks that require planning, tool use, and review.",
+    "accent": "#F59E0B",
+    "motif": "circular-loop",
+    "fields": [
+      {
+        "label": "Role",
+        "letter": null,
+        "short": "Role",
+        "help": "Who or what should the AI act as?",
+        "tip": "Ground the reasoning in relevant expertise or perspective.",
+        "placeholder": "e.g. You are a travel planning assistant with access to search tools."
+      },
+      {
+        "label": "Goal / Task",
+        "letter": null,
+        "short": "Goal",
+        "help": "What needs to be accomplished.",
+        "tip": "State the end result the loop should ultimately produce.",
+        "placeholder": "e.g. Find the best flight option and draft a travel itinerary."
+      },
+      {
+        "label": "Available Tools / Actions",
+        "letter": null,
+        "short": "Tools",
+        "help": "What the AI is allowed to use or do.",
+        "tip": "List only the tools or actions actually available to use.",
+        "placeholder": "e.g. Web search, calculator, calendar lookup."
+      },
+      {
+        "label": "Thought Instruction",
+        "letter": null,
+        "short": "Thought",
+        "help": "How the AI should reason before acting.",
+        "tip": "Ask for a brief reason before each action, not a full essay.",
+        "placeholder": "e.g. Before each action, explain what you need to find out and why."
+      },
+      {
+        "label": "Action Instruction",
+        "letter": null,
+        "short": "Action",
+        "help": "How actions should be described.",
+        "tip": "Describe how each action should be phrased or logged.",
+        "placeholder": "e.g. State the exact action to take, e.g. 'Search for flights from London to Lisbon on 3 October'."
+      },
+      {
+        "label": "Observation Instruction",
+        "letter": null,
+        "short": "Observation",
+        "help": "How results should be reviewed before continuing.",
+        "tip": "Ask for a short summary of what each result showed.",
+        "placeholder": "e.g. Summarise what was learned from each action before deciding the next step."
+      },
+      {
+        "label": "Final Answer Instruction",
+        "letter": null,
+        "short": "Final Answer",
+        "help": "What the AI should deliver once the loop is finished.",
+        "tip": "Describe the format of the final answer once the loop ends.",
+        "placeholder": "e.g. Once the itinerary is complete, present it as a day-by-day schedule."
+      }
     ]
   },
-  selfconsistency: {
-    name: "Self-Consistency",
-    tag: "For high-accuracy needs",
-    homeDesc: "Generates several independent answers to the same question and checks them for agreement, favouring consensus over a single attempt to improve reliability.",
-    subHeader: "Ask the AI to solve the same problem multiple times independently, then reconcile the results.",
-    fields: [
-      { label:"Question / Problem", help:"The question that needs a reliable answer.", placeholder:"e.g. What will next month's revenue be, given current trends?" },
-      { label:"Number of Independent Attempts", help:"How many separate reasoning attempts to generate.", placeholder:"e.g. 3" },
-      { label:"Instruction for Each Attempt", help:"How each attempt should be approached, ideally with some variation.", placeholder:"e.g. Use a different method or assumption set for each attempt." },
-      { label:"Comparison Instruction", help:"How the AI should evaluate the attempts against each other.", placeholder:"e.g. Compare the answers and highlight where they agree or disagree." },
-      { label:"Consensus / Confidence Instruction", help:"What the final, reconciled output should look like.", placeholder:"e.g. Give a final consensus answer together with a confidence level (low / medium / high)." }
+  "selfconsistency": {
+    "name": "Self-Consistency",
+    "tag": "For high-accuracy needs",
+    "homeDesc": "Generates several independent answers to the same question and checks them for agreement, favouring consensus over a single attempt to improve reliability.",
+    "subHeader": "Ask the AI to solve the same problem multiple times independently, then reconcile the results.",
+    "stageLine": "Solve · Compare · Verify · Select",
+    "purpose": "Improve confidence by comparing independent approaches and checking results.",
+    "accent": "#FB7185",
+    "motif": "converging-lines",
+    "fields": [
+      {
+        "label": "Role",
+        "letter": null,
+        "short": "Role",
+        "help": "Who or what should the AI act as?",
+        "tip": "Ground the reasoning in relevant expertise or perspective.",
+        "placeholder": "e.g. You are a financial forecasting analyst."
+      },
+      {
+        "label": "Question / Problem",
+        "letter": null,
+        "short": "Question",
+        "help": "The question that needs a reliable answer.",
+        "tip": "Ask one specific question with a checkable answer.",
+        "placeholder": "e.g. What will next month's revenue be, given current trends?"
+      },
+      {
+        "label": "Number of Independent Attempts",
+        "letter": null,
+        "short": "Attempts",
+        "help": "How many separate reasoning attempts to generate.",
+        "tip": "Three attempts is a reasonable starting point.",
+        "placeholder": "e.g. 3"
+      },
+      {
+        "label": "Instruction for Each Attempt",
+        "letter": null,
+        "short": "Per-Attempt Instruction",
+        "help": "How each attempt should be approached, ideally with some variation.",
+        "tip": "Vary the method or assumptions across attempts.",
+        "placeholder": "e.g. Use a different method or assumption set for each attempt."
+      },
+      {
+        "label": "Comparison Instruction",
+        "letter": null,
+        "short": "Comparison",
+        "help": "How the AI should evaluate the attempts against each other.",
+        "tip": "Ask the AI to point out where attempts agree or differ.",
+        "placeholder": "e.g. Compare the answers and highlight where they agree or disagree."
+      },
+      {
+        "label": "Consensus / Confidence Instruction",
+        "letter": null,
+        "short": "Consensus",
+        "help": "What the final, reconciled output should look like.",
+        "tip": "Ask for a plain confidence level alongside the final answer.",
+        "placeholder": "e.g. Give a final consensus answer together with a confidence level (low / medium / high)."
+      }
     ]
   },
-  leasttomost: {
-    name: "Least-to-Most",
-    tag: "For complex problems",
-    homeDesc: "Breaks an overwhelming problem into a sequence of smaller subproblems, solving the simplest first and using each result to build toward the full solution.",
-    subHeader: "Decompose a complex problem into progressively harder subproblems and solve them in order.",
-    fields: [
-      { label:"Complex Problem", help:"The overall problem, in full.", placeholder:"e.g. Design a pricing model for a new SaaS product." },
-      { label:"Subproblem 1 (Simplest)", help:"The easiest piece to solve first.", placeholder:"e.g. List the cost inputs." },
-      { label:"Subproblem 2", help:"Builds on subproblem 1.", placeholder:"e.g. Estimate a break-even price per user." },
-      { label:"Subproblem 3", help:"Builds on subproblem 2.", placeholder:"e.g. Compare against 2-3 competitor pricing models." },
-      { label:"Subproblem 4 (Most Complex)", help:"The full, hardest version of the problem.", placeholder:"e.g. Propose a tiered pricing structure with rationale." },
-      { label:"Synthesis Instruction", help:"How the AI should combine the steps into a final answer.", placeholder:"e.g. Show the output of each subproblem before presenting the final tiered pricing structure." }
+  "leasttomost": {
+    "name": "Least-to-Most",
+    "tag": "For complex problems",
+    "homeDesc": "Breaks an overwhelming problem into a sequence of smaller subproblems, solving the simplest first and using each result to build toward the full solution.",
+    "subHeader": "Decompose a complex problem into progressively harder subproblems and solve them in order.",
+    "stageLine": "Break down · Solve · Build up",
+    "purpose": "Solve difficult problems by progressing from simpler dependent steps.",
+    "accent": "#818CF8",
+    "motif": "ascending-steps",
+    "fields": [
+      {
+        "label": "Role",
+        "letter": null,
+        "short": "Role",
+        "help": "Who or what should the AI act as?",
+        "tip": "Ground the reasoning in relevant expertise or perspective.",
+        "placeholder": "e.g. You are a SaaS pricing strategist."
+      },
+      {
+        "label": "Complex Problem",
+        "letter": null,
+        "short": "Problem",
+        "help": "The overall problem, in full.",
+        "tip": "State the full problem before it gets broken down.",
+        "placeholder": "e.g. Design a pricing model for a new SaaS product."
+      },
+      {
+        "label": "Subproblem 1 (Simplest)",
+        "letter": null,
+        "short": "Sub-problem 1",
+        "help": "The easiest piece to solve first.",
+        "tip": "Pick a genuinely simple starting point.",
+        "placeholder": "e.g. List the cost inputs."
+      },
+      {
+        "label": "Subproblem 2",
+        "letter": null,
+        "short": "Sub-problem 2",
+        "help": "Builds on subproblem 1.",
+        "tip": "Should depend on the answer to Sub-problem 1.",
+        "placeholder": "e.g. Estimate a break-even price per user."
+      },
+      {
+        "label": "Subproblem 3",
+        "letter": null,
+        "short": "Sub-problem 3",
+        "help": "Builds on subproblem 2.",
+        "tip": "Introduce a real comparison or added complexity here.",
+        "placeholder": "e.g. Compare against 2-3 competitor pricing models."
+      },
+      {
+        "label": "Subproblem 4 (Most Complex)",
+        "letter": null,
+        "short": "Sub-problem 4",
+        "help": "The full, hardest version of the problem.",
+        "tip": "This is the full, hardest version of the original problem.",
+        "placeholder": "e.g. Propose a tiered pricing structure with rationale."
+      },
+      {
+        "label": "Synthesis Instruction",
+        "letter": null,
+        "short": "Synthesis",
+        "help": "How the AI should combine the steps into a final answer.",
+        "tip": "Ask for each sub-answer to be shown before the final one.",
+        "placeholder": "e.g. Show the output of each subproblem before presenting the final tiered pricing structure."
+      }
     ]
   }
 };
+const NEXT_STEP = {
+  "rise": "Define the desired end goal and the format of a successful result.",
+  "race": "Add the audience, relevant background, and constraints the AI should follow.",
+  "cot": "State the known facts, assumptions, and exact question to be reasoned through.",
+  "tot": "Add the decision criteria that should be used to compare possible options.",
+  "react": "Define permitted actions, available tools, and the expected outcome.",
+  "selfconsistency": "Specify what should be independently checked or compared before selecting a final answer.",
+  "leasttomost": "Break the main problem into the first smaller task that must be solved."
+};
+
+/* Small inline SVG motifs — no external images/icon fonts, per brand spec.
+   Each uses currentColor so it inherits the framework's accent via CSS. */
+const MOTIFS = {
+  "stacked-blocks": '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="4" width="18" height="6" rx="1.5"/><rect x="4" y="13" width="18" height="6" rx="1.5"/><rect x="10" y="22" width="18" height="6" rx="1.5"/></svg>',
+  "connected-nodes": '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="3.2"/><circle cx="25" cy="7" r="3.2"/><circle cx="7" cy="25" r="3.2"/><circle cx="25" cy="25" r="3.2"/><path d="M9.8 9.4 22.2 22.2M22.2 9.4 9.8 22.2"/></svg>',
+  "connected-path": '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="16" r="3"/><circle cx="16" cy="6" r="3"/><circle cx="16" cy="26" r="3"/><circle cx="27" cy="16" r="3"/><path d="M7.6 14.6 13.4 8M13.4 24 7.6 17.4M18.6 8 24.4 14.6M24.4 17.4 18.6 24"/></svg>',
+  "branching-paths": '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="16" r="3"/><circle cx="26" cy="5" r="3"/><circle cx="26" cy="16" r="3"/><circle cx="26" cy="27" r="3"/><path d="M8.6 15 23.4 6M8.8 16h14.2M8.6 17 23.4 26"/></svg>',
+  "circular-loop": '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M25 10a9.5 9.5 0 1 0 1.6 9.2"/><path d="M25 4v6.5h-6.5"/></svg>',
+  "converging-lines": '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="16" r="3.4"/><path d="M16 3v9.2M16 29v-9.2M3 16h9.2M29 16h-9.2"/></svg>',
+  "ascending-steps": '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 27h5v-6H4zM12.5 27h5v-13h-5zM21 27h5V6h-5"/></svg>'
+};
+function motifSVG(key){ return MOTIFS[key] || ''; }
 
 let currentFrameworkId = null;
 let cachedDirHandle = null;
@@ -776,6 +1584,9 @@ const app = document.getElementById('app');
 
 function supportsDirectoryPicker(){ return typeof window.showDirectoryPicker === 'function'; }
 function supportsShare(){ return typeof navigator.share === 'function'; }
+function prefersReducedMotion(){
+  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
 
 /* ==========================================================================
    Colour theme switcher — Studio Slate / Deep Aurora Glass / Warm Editorial
@@ -856,17 +1667,26 @@ function renderHome(){
   currentFrameworkId = null;
   document.title = 'AI Prompt Builder';
   app.innerHTML = homeHTML();
+  updateTopbarNav();
 }
 
 function renderFramework(id){
   currentFrameworkId = id;
   const fw = FRAMEWORKS[id];
   document.title = fw.name + ' — AI Prompt Builder';
-  app.innerHTML = frameworkHTML(fw);
+  app.innerHTML = frameworkHTML(fw, id);
+  updateTopbarNav();
 
   const fieldsEl = app.querySelector('.fields');
-  if (fieldsEl) fieldsEl.addEventListener('input', updatePreview);
-  updatePreview();
+  if (fieldsEl) fieldsEl.addEventListener('input', refreshFrameworkUI);
+  refreshFrameworkUI();
+}
+
+/* Keeps the persistent header's "Frameworks" link visually marked as
+   current only while on the home/framework-list page. */
+function updateTopbarNav(){
+  const link = document.getElementById('topbar-frameworks-link');
+  if (link) link.classList.toggle('current', !currentFrameworkId);
 }
 
 /* Appended to the end of every generated prompt — fixed reliability
@@ -914,18 +1734,111 @@ function getCompiledContent(){
 function updatePreview(){
   const previewEl = document.getElementById('preview-box');
   if (!previewEl) return;
-  previewEl.value = getCompiledContent().content;
+  const { content } = getCompiledContent();
+  previewEl.value = content;
+  const statusLine = document.getElementById('preview-status-line');
+  if (statusLine && currentFrameworkId){
+    const fw = FRAMEWORKS[currentFrameworkId];
+    statusLine.textContent = `${fw.name} · ${content ? 'Ready for review' : 'Not generated yet'}`;
+  }
+}
+
+/* ==========================================================================
+   Field completion state — shared by the field rows, the progress stepper,
+   and the Prompt Readiness panel. Truthful and simple by design: a field
+   counts as complete only when it has actual non-whitespace text. This
+   never claims anything about correctness, safety or quality.
+   ========================================================================== */
+function getFieldStates(fw){
+  return fw.fields.map((f, i) => {
+    const el = document.getElementById(`field-input-${i}`);
+    return !!(el && el.value.trim().length > 0);
+  });
+}
+
+function refreshFrameworkUI(){
+  if (!currentFrameworkId) return;
+  const fw = FRAMEWORKS[currentFrameworkId];
+  const states = getFieldStates(fw);
+  updatePreview();
+  updateFieldRowStates(states);
+  updateStepper(fw, states);
+  updateReadinessPanel(fw, states);
+}
+
+function updateFieldRowStates(states){
+  document.querySelectorAll('.field-row').forEach((row, i) => {
+    row.classList.toggle('is-complete', !!states[i]);
+  });
+}
+
+function updateStepper(fw, states){
+  const el = document.getElementById('fw-stepper');
+  if (!el) return;
+  el.innerHTML = fw.fields.map((f, i) => {
+    const complete = states[i];
+    const connector = i < fw.fields.length - 1
+      ? `<span class="fw-step-connector${states[i] ? ' is-filled' : ''}"></span>`
+      : '';
+    return `<div class="fw-step${complete ? ' is-complete' : ''}">
+      <div class="fw-step-main">
+        <span class="fw-step-dot" aria-hidden="true">${complete ? '✓' : String(i + 1).padStart(2, '0')}</span>
+        <span class="fw-step-label">${escapeHtml(f.short)}</span>
+      </div>
+      ${connector}
+    </div>`;
+  }).join('');
+}
+
+function updateReadinessPanel(fw, states){
+  const listEl = document.getElementById('readiness-list');
+  const barEl = document.getElementById('readiness-bar-fill');
+  const countEl = document.getElementById('readiness-count');
+  const nextEl = document.getElementById('readiness-next-text');
+  if (!listEl) return;
+
+  const total = fw.fields.length;
+  const completed = states.filter(Boolean).length;
+
+  listEl.innerHTML = fw.fields.map((f, i) => {
+    const complete = states[i];
+    const icon = complete
+      ? '<svg class="readiness-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5 6.2 12 13 4"/></svg>'
+      : '<svg class="readiness-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="5.5"/></svg>';
+    return `<li class="readiness-item${complete ? ' is-complete' : ''}">
+      <span class="readiness-item-name">${escapeHtml(f.short)}</span>
+      <span class="readiness-item-state">${icon}${complete ? 'Complete' : 'Not started'}</span>
+    </li>`;
+  }).join('');
+
+  if (barEl) barEl.style.width = `${total ? Math.round((completed / total) * 100) : 0}%`;
+  if (countEl) countEl.textContent = `${completed} of ${total} complete`;
+  if (nextEl){
+    nextEl.textContent = completed >= total
+      ? 'All sections have content — review the compiled prompt below before generating.'
+      : (NEXT_STEP[currentFrameworkId] || '');
+  }
 }
 
 function escapeHtml(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function scrollToPreview(){
+  const box = document.getElementById('preview-box');
+  if (!box) return;
+  box.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+  box.focus({ preventScroll: true });
+}
+
 function homeHTML(){
   const cards = Object.keys(FRAMEWORKS).map(id => {
     const fw = FRAMEWORKS[id];
-    return `<div class="card">
-      <span class="card-tag">${escapeHtml(fw.tag)}</span>
+    return `<div class="card" style="--card-accent:${fw.accent}">
+      <div class="card-top">
+        <span class="card-tag">${escapeHtml(fw.tag)}</span>
+        <span class="card-motif" aria-hidden="true">${motifSVG(fw.motif)}</span>
+      </div>
       <h2>${escapeHtml(fw.name)}</h2>
       <p>${escapeHtml(fw.homeDesc)}</p>
       <a class="btn primary" href="#${id}">Open ${escapeHtml(fw.name)} →</a>
@@ -936,8 +1849,12 @@ function homeHTML(){
     <header class="home-header">
       <h1>AI Prompt Builder</h1>
       <p class="hero-subtitle">Turn proven prompt engineering frameworks into structured, ready-to-use inputs without memorising complex rules.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#choose-framework">Explore frameworks</a>
+        <button type="button" class="btn secondary" onclick="document.getElementById('how-it-works').open = true; document.getElementById('how-it-works').scrollIntoView({behavior: prefersReducedMotion() ? 'auto' : 'smooth', block:'center'});">How it works</button>
+      </div>
       <hr class="header-divider">
-      <div class="feature-row">
+      <div class="feature-row" id="how-it-works-band">
         <div class="feature-item">
           <span class="feature-badge">1</span>
           <div class="feature-content">
@@ -960,8 +1877,12 @@ function homeHTML(){
           </div>
         </div>
       </div>
+      <details class="hero-guide" id="how-it-works">
+        <summary>More about how it works</summary>
+        <div class="hero-guide-body">Pick a framework below to open its guided form. Fill in as many fields as apply — the compiled prompt at the bottom of the page updates as you type. When you're ready, generate the prompt to save it as a numbered text file (or share/copy it straight away).</div>
+      </details>
     </header>
-    <p class="section-label">Choose a framework</p>
+    <p class="section-label" id="choose-framework">Choose a framework</p>
     <div class="card-grid">${cards}</div>
     <footer class="home-footer">${fileNoteHTML()}</footer>
   `;
@@ -979,40 +1900,102 @@ function fileNoteHTML(){
   `;
 }
 
-function frameworkHTML(fw){
+function frameworkHTML(fw, id){
   const rows = fw.fields.map((f, i) => `
     <div class="field-row">
       <div class="field-label">
-        <label for="field-input-${i}">${escapeHtml(f.label)}</label>
-        <div class="field-help">${escapeHtml(f.help)}</div>
+        <div class="field-stage-title">
+          <span class="field-stage-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}${f.letter ? ' · ' + f.letter + ' —' : ''}</span>
+          <label for="field-input-${i}">${escapeHtml(f.label)}</label>
+        </div>
+        <div class="field-help" id="field-help-${i}">${escapeHtml(f.help)}</div>
+        <p class="field-tip">Tip: ${escapeHtml(f.tip)}</p>
       </div>
       <div class="field-input">
-        <textarea id="field-input-${i}" rows="2" placeholder="${escapeHtml(f.placeholder)}"></textarea>
+        <textarea id="field-input-${i}" rows="2" placeholder="${escapeHtml(f.placeholder)}" aria-describedby="field-help-${i}"></textarea>
       </div>
     </div>
   `).join('');
 
-  return `
-    <a class="back-link" href="#">← Back to all frameworks</a>
-    <header class="fw-header">
-      <h1>${escapeHtml(fw.name)}</h1>
-      <p class="fw-subheader">${escapeHtml(fw.subHeader)}</p>
-      <hr class="header-divider">
-    </header>
-    <div class="fields">${rows}</div>
-    ${fileNoteHTML()}
-    <div class="action-bar">
-      <button class="btn primary" onclick="handleGenerate()">Generate and Save Text File</button>
-      ${supportsShare() ? `<button class="btn secondary" id="share-btn" onclick="handleShare()" disabled>Share…</button>` : ''}
-      <button class="btn ghost" onclick="handleClear()">Clear form</button>
-    </div>
-    <div id="status-msg" class="status"></div>
-    <div class="preview-section">
-      <div class="preview-header">
-        <h3>Compiled prompt</h3>
-        <button class="btn ghost small" onclick="handleCopy()">Copy to clipboard</button>
+  const stepperItems = fw.fields.map((f, i) => {
+    const connector = i < fw.fields.length - 1 ? `<span class="fw-step-connector"></span>` : '';
+    return `<div class="fw-step">
+      <div class="fw-step-main">
+        <span class="fw-step-dot" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+        <span class="fw-step-label">${escapeHtml(f.short)}</span>
       </div>
-      <textarea id="preview-box" readonly rows="8" placeholder="Your compiled prompt will appear here after you click Generate."></textarea>
+      ${connector}
+    </div>`;
+  }).join('');
+
+  const readinessListItems = fw.fields.map(f => `<li class="readiness-item">
+      <span class="readiness-item-name">${escapeHtml(f.short)}</span>
+      <span class="readiness-item-state"><svg class="readiness-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="5.5"/></svg>Not started</span>
+    </li>`).join('');
+
+  return `
+    <div class="fw-page" style="--fw-accent:${fw.accent}">
+    <a class="back-link" href="#">← Back to all frameworks</a>
+    <div class="fw-identity">
+      <p class="fw-watermark" aria-hidden="true">${escapeHtml(fw.name)}</p>
+      <div class="fw-eyebrow-row">
+        <span class="fw-eyebrow">AI Prompt Builder / Framework Workspace</span>
+      </div>
+      <header class="fw-header">
+        <div class="fw-eyebrow-row">
+          <span class="fw-motif" aria-hidden="true">${motifSVG(fw.motif)}</span>
+          <h1 style="margin-bottom:0;">${escapeHtml(fw.name)}</h1>
+        </div>
+        <p class="fw-stageline">${escapeHtml(fw.stageLine)}</p>
+        <p class="fw-subheader">${escapeHtml(fw.subHeader)}</p>
+        <hr class="header-divider">
+      </header>
+      <details class="fw-guide">
+        <summary>Framework guide — how it works</summary>
+        <div class="fw-guide-body">${escapeHtml(fw.purpose)}</div>
+      </details>
+    </div>
+
+    <div class="fw-stepper-wrap">
+      <div class="fw-stepper" id="fw-stepper">${stepperItems}</div>
+    </div>
+
+    <div class="fw-workspace">
+      <div class="fw-main">
+        <div class="fields">${rows}</div>
+        ${fileNoteHTML()}
+        <div class="action-bar">
+          <button class="btn primary" onclick="handleGenerate()">Generate and Save Text File</button>
+          ${supportsShare() ? `<button class="btn secondary" id="share-btn" onclick="handleShare()" disabled>Share…</button>` : ''}
+          <button class="btn ghost" onclick="handleClear()">Clear form</button>
+        </div>
+        <div id="status-msg" class="status"></div>
+        <div class="preview-section">
+          <div class="preview-header">
+            <div class="preview-header-text">
+              <h3>Generated Prompt</h3>
+              <p class="preview-status-line" id="preview-status-line">${escapeHtml(fw.name)} · Not generated yet</p>
+            </div>
+            <button class="btn ghost small" onclick="handleCopy()">Copy</button>
+          </div>
+          <textarea id="preview-box" readonly rows="8" placeholder="Your compiled prompt will appear here as you fill in the fields above."></textarea>
+        </div>
+      </div>
+
+      <aside class="readiness-panel" aria-label="Prompt readiness">
+        <p class="readiness-title">Prompt Readiness</p>
+        <div class="readiness-fw-row"><span><span class="fw-accent-dot" aria-hidden="true"></span>Framework: ${escapeHtml(fw.name)}</span> <span aria-hidden="true">✓</span></div>
+        <ul class="readiness-list" id="readiness-list">${readinessListItems}</ul>
+        <p class="readiness-section">Section completion</p>
+        <div class="readiness-bar-track"><div class="readiness-bar-fill" id="readiness-bar-fill" style="width:0%"></div></div>
+        <p class="readiness-count" id="readiness-count">0 of ${fw.fields.length} complete</p>
+        <div class="readiness-next">
+          <p class="readiness-next-label">Recommended next step</p>
+          <p id="readiness-next-text">${escapeHtml(NEXT_STEP[id] || '')}</p>
+        </div>
+        <button type="button" class="btn secondary small" onclick="scrollToPreview()">Preview prompt</button>
+      </aside>
+    </div>
     </div>
   `;
 }
@@ -1257,13 +2240,13 @@ function handleClear(){
   fw.fields.forEach((f, i) => {
     document.getElementById(`field-input-${i}`).value = '';
   });
-  document.getElementById('preview-box').value = '';
   lastGenerated = null;
   const shareBtn = document.getElementById('share-btn');
   if (shareBtn) shareBtn.setAttribute('disabled', 'true');
   const statusEl = document.getElementById('status-msg');
   statusEl.textContent = '';
   statusEl.className = 'status';
+  refreshFrameworkUI();
 }
 </script>
 </body>
