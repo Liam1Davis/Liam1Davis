@@ -570,6 +570,35 @@
     font-size:.9rem;
     line-height:1.6;
   }
+  .guide-steps{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin:0;
+    padding:0;
+    list-style:none;
+  }
+  .guide-step{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .guide-step-badge{
+    flex:none;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.76rem;
+    font-weight:700;
+  }
+  .guide-step-text{display:flex;flex-direction:column;gap:2px;}
+  .guide-step-text strong{color:var(--text);font-size:.9rem;}
+  .guide-step-text span{color:var(--muted);font-size:.87rem;line-height:1.5;}
   .feature-row{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -708,6 +737,7 @@
     font-size:.88rem;
     line-height:1.55;
   }
+  .info-note p + p{margin-top:8px;}
   .info-note code{
     background:var(--code-bg);
     padding:2px 6px;
@@ -2256,7 +2286,26 @@ function homeHTML(){
       </div>
       <details class="hero-guide" id="how-it-works">
         <summary>More about how it works</summary>
-        <div class="hero-guide-body">Pick a framework below to open its guided form. Fill in as many fields as apply — the compiled prompt at the bottom of the page updates as you type. When you're ready, generate the prompt to save it as a numbered text file (or share/copy it straight away).</div>
+        <div class="hero-guide-body">
+          <ol class="guide-steps">
+            <li class="guide-step">
+              <span class="guide-step-badge" aria-hidden="true">1</span>
+              <span class="guide-step-text"><strong>Choose a framework</strong><span>Each one suits a different kind of task, so start with the card that best matches what you're trying to do.</span></span>
+            </li>
+            <li class="guide-step">
+              <span class="guide-step-badge" aria-hidden="true">2</span>
+              <span class="guide-step-text"><strong>Fill in the guided fields</strong><span>You don't need to complete every field — as you type, the compiled prompt at the bottom of the page builds itself in real time.</span></span>
+            </li>
+            <li class="guide-step">
+              <span class="guide-step-badge" aria-hidden="true">3</span>
+              <span class="guide-step-text"><strong>Review your compiled prompt</strong><span>Read it over before moving on — this is your chance to catch anything missing or unclear while it's still easy to fix.</span></span>
+            </li>
+            <li class="guide-step">
+              <span class="guide-step-badge" aria-hidden="true">4</span>
+              <span class="guide-step-text"><strong>Save, copy, or share it</strong><span>Click Generate to save it as a numbered text file for your records, or use Copy / Share if you need it right away.</span></span>
+            </li>
+          </ol>
+        </div>
       </details>
     </header>
     <p class="section-label" id="choose-framework">Choose a framework</p>
@@ -2272,7 +2321,10 @@ function fileNoteHTML(){
   return `
     <div class="info-note">
       <span class="info-note-icon">i</span>
-      <p>Files are named <code>PromptXXXDDMMYYYY.txt</code> (e.g. <code>Prompt00118092026.txt</code>) and numbered consecutively each day, starting again at 001 (and increasing by 1 consecutively up to 999 every time you generate a new prompt file) the next day. The first time you generate a file, you'll be asked to choose your output folder (e.g. your "AI Prompts Output" folder in OneDrive) — after that, files save straight into it.</p>
+      <div class="info-note-body">
+        <p><strong>Auto-numbered filenames:</strong> every prompt saves as <code>PromptXXXDDMMYYYY.txt</code> — for example, <code>Prompt00118092026.txt</code> is the 1st prompt generated on 18/09/2026. Numbering resets to 001 at the start of each new day and climbs to 999 before it resets again.</p>
+        <p><strong>Pick your folder once:</strong> the first time you click Generate, you'll be asked to choose an output folder (e.g. your "AI Prompts Output" folder in OneDrive). Every prompt after that saves straight there automatically — no need to choose again.</p>
+      </div>
     </div>
   `;
 }
