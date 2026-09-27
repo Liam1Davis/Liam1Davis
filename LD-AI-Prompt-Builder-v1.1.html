@@ -2052,7 +2052,7 @@ const RUNTIME_CONFIG = {
   rise: {
     temp: '0.7 (Balanced for structured workflow execution)',
     models: 'GPT-4o, Claude 3.5 Sonnet, Llama 3.3',
-    profile: 'Operational / Step-by-Step'
+    profile: 'Operational / Step-by-Step Execution'
   },
   race: {
     temp: '0.5 (Grounded for context and accuracy)',
@@ -2065,24 +2065,24 @@ const RUNTIME_CONFIG = {
     profile: 'Analytical & Multi-Step Deduction'
   },
   tot: {
-    temp: '0.6 (Balanced for branching exploration and evaluation)',
+    temp: '0.6 (Balanced for branching exploration and structured evaluation)',
     models: 'o1, GPT-4o, Claude 3.5 Sonnet',
-    profile: 'Exploratory Multi-Path Reasoning'
+    profile: 'Exploratory Branching & Decision Trees'
   },
   react: {
-    temp: '0.3 (Deterministic for reliable thought-action-observation cycles)',
+    temp: '0.3 (Deterministic for reliable tool-calling and observation cycles)',
     models: 'GPT-4o, Claude 3.5 Sonnet, Llama 3.3',
-    profile: 'Iterative Reasoning + Action'
+    profile: 'Interactive Reasoning & External Tool Execution'
   },
   selfconsistency: {
     temp: '0.7 to 0.8 (Higher diversity for sampling multiple paths before voting)',
     models: 'Claude 3.5 Sonnet, GPT-4o',
-    profile: 'Multi-Sample Consensus'
+    profile: 'Multi-Sample Divergence & Consensus Voting'
   },
   leasttomost: {
     temp: '0.2 (Low randomness to prevent error accumulation across sequential sub-steps)',
     models: 'o1, Claude 3.5 Sonnet, DeepSeek-R1',
-    profile: 'Sequential Subproblem Decomposition'
+    profile: 'Sequential Problem Decomposition'
   }
 };
 
