@@ -1798,9 +1798,90 @@ FRAMEWORK CHECKLIST:
 [ ] Have I used a natural, direct, non-repetitive writing style?
 [ ] If uncertainty materially affects the answer, have I asked for clarification or user approval rather than guessing?`;
 
+/* ==========================================================================
+   Recommended Runtime Configuration — per-framework metadata header.
+   Shown identically at the top of both the downloaded .txt file and the
+   text copied to the clipboard, since both read from the same compiled
+   content (see getCompiledContent below). Suggested-temperature ranges and
+   model picks reflect general characteristics of each technique (e.g.
+   Self-Consistency needs sampling diversity, so a higher temperature;
+   Chain-of-Thought and Least-to-Most favour low, deterministic values) —
+   treat them as a starting point, not a guarantee, and adjust for your
+   own use case and provider.
+   ========================================================================== */
+const RUNTIME_CONFIG = {
+  rise: {
+    temp: '0.7 (Balanced for structured workflow execution)',
+    models: 'GPT-4o, Claude 3.5 Sonnet, Llama 3.3',
+    profile: 'Operational / Step-by-Step'
+  },
+  race: {
+    temp: '0.5 (Grounded for accuracy and context synthesis)',
+    models: 'Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro',
+    profile: 'High-Fidelity Reference Analysis'
+  },
+  cot: {
+    temp: '0.2 to 0.3 (Low randomness to preserve deterministic reasoning)',
+    models: 'o1, Claude 3.5 Sonnet, DeepSeek-R1',
+    profile: 'Analytical & Multi-Step Deduction'
+  },
+  tot: {
+    temp: '0.4 to 0.6 (Moderate exploration across branching reasoning paths)',
+    models: 'GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro',
+    profile: 'Exploratory Multi-Path Reasoning'
+  },
+  react: {
+    temp: '0.3 (Low-to-moderate for reliable tool-call formatting)',
+    models: 'GPT-4o, Claude 3.5 Sonnet, Llama 3.3',
+    profile: 'Iterative Reasoning + Action'
+  },
+  selfconsistency: {
+    temp: '0.7 to 0.9 (Higher randomness needed to generate diverse independent samples)',
+    models: 'GPT-4o, Claude 3.5 Sonnet, Llama 3.3',
+    profile: 'Multi-Sample Consensus'
+  },
+  leasttomost: {
+    temp: '0.3 (Low randomness to keep subproblem decomposition consistent)',
+    models: 'GPT-4o, Claude 3.5 Sonnet, DeepSeek-R1',
+    profile: 'Sequential Subproblem Decomposition'
+  }
+};
+
+function buildRuntimeConfigHeader(fw, id){
+  const cfg = RUNTIME_CONFIG[id] || { temp: 'Not specified', models: 'Not specified', profile: 'Not specified' };
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2,'0');
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  const yyyy = now.getFullYear();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const min = String(now.getMinutes()).padStart(2,'0');
+  const generated = `${dd}/${mm}/${yyyy}, ${hh}:${min}`;
+  const bar = '='.repeat(80);
+  return `${bar}
+AI PROMPT BUILDER — RUNTIME CONFIGURATION METADATA
+${bar}
+Framework            : ${fw.name}
+Generated            : ${generated}
+Suggested Temp       : ${cfg.temp}
+Top-P                : 0.9
+Recommended Models   : ${cfg.models}
+Profile              : ${cfg.profile}
+
+USAGE NOTE:
+- In API Playgrounds, Cursor, or Local LLMs: Use the temperature above.
+- In Standard Web Chats (ChatGPT, Claude.ai): The prompt body below
+  remains fully functional even if this header is included.
+${bar}
+
+`;
+}
+
 /* Builds the compiled "- Label: value" lines for the currently open
-   framework, from whatever is in the fields right now, plus the fixed
-   reliability rules and checklist appended at the end. */
+   framework, from whatever is in the fields right now, plus the
+   Recommended Runtime Configuration header at the top and the fixed
+   reliability rules and checklist appended at the end. This single
+   string is what feeds the live preview, the downloaded .txt file and
+   the clipboard copy, so all three always match exactly. */
 function getCompiledContent(){
   if (!currentFrameworkId) return { lines: [], content: '' };
   const fw = FRAMEWORKS[currentFrameworkId];
@@ -1811,7 +1892,7 @@ function getCompiledContent(){
     if (val) lines.push(`- ${f.label}: ${val}`);
   });
   const content = lines.length
-    ? lines.join('\n') + '\n\n' + RELIABILITY_BLOCK + '\n'
+    ? buildRuntimeConfigHeader(fw, currentFrameworkId) + lines.join('\n') + '\n\n' + RELIABILITY_BLOCK + '\n'
     : '';
   return { lines, content };
 }
