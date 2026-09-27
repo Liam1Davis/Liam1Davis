@@ -706,43 +706,80 @@
     margin-top:36px;
   }
 
-  /* ---------- Prominent info callout (file-naming / output note) ---------- */
-  .info-note{
+  /* ---------- File-saving info strip: compact two-pill mini grid ----------
+     Replaces the old single wide callout card. Two small glass pills sit
+     side-by-side (stacking on narrow screens), each covering one fact —
+     scannable at a glance rather than a paragraph to read. Uses the same
+     themed tokens as the rest of the UI (--btn-tint-bg / --card-tag-bg /
+     --border) so it automatically matches all three themes, and gets the
+     Aurora glass blur + neon hover glow the same way .card does. */
+  .archive-info-strip{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:10px;
+    margin:18px 0;
+  }
+  .archive-pill{
     display:flex;
-    gap:12px;
     align-items:flex-start;
+    gap:10px;
+    padding:11px 14px;
     background:var(--btn-tint-bg);
     border:1px solid var(--border);
-    border-left:4px solid var(--accent);
-    border-radius:10px;
-    padding:14px 16px;
-    margin:24px 0;
+    border-radius:var(--radius);
+    transition:border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
   }
-  .info-note-icon{
+  .archive-pill:hover{
+    border-color:var(--accent);
+    background:var(--btn-tint-hover);
+  }
+  :root[data-theme="aurora"] .archive-pill{
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+  }
+  :root[data-theme="aurora"] .archive-pill:hover{
+    box-shadow:0 0 20px rgba(192,132,252,.22);
+  }
+  .pill-icon{
     flex:none;
-    width:22px;
-    height:22px;
-    border-radius:50%;
-    background:var(--accent);
-    color:#fff;
+    width:30px;
+    height:30px;
+    border-radius:8px;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:.78rem;
-    font-weight:800;
+    background:var(--card-tag-bg);
+    color:var(--card-tag-text);
   }
-  .info-note p{
-    margin:0;
+  .pill-icon svg{display:block;}
+  .pill-content{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-width:0;
+  }
+  .pill-title{
+    font-size:.83rem;
+    font-weight:700;
     color:var(--text);
-    font-size:.88rem;
-    line-height:1.55;
   }
-  .info-note p + p{margin-top:8px;}
-  .info-note code{
-    background:var(--code-bg);
-    padding:2px 6px;
+  .pill-desc{
+    font-size:.76rem;
+    line-height:1.42;
+    color:var(--muted);
+  }
+  .filename-badge{
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    padding:1px 5px;
     border-radius:4px;
-    font-size:.85em;
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    color:var(--text);
+    white-space:nowrap;
+  }
+  @media (max-width:600px){
+    .archive-info-strip{margin:14px 0;}
   }
 
   /* ---------- Site-wide developer credit + analytics-badge footer ---------- */
@@ -2314,16 +2351,39 @@ function homeHTML(){
   `;
 }
 
-/* Shared, visually prominent reminder of how generated files are named and
-   saved — shown on the home page AND right by the Generate button on every
-   framework page, so it's relevant at the moment it actually matters. */
+/* Shared, compact reminder of how generated files are named and saved —
+   shown on the home page AND right above the live preview on every
+   framework page, so it's visible at the moment it actually matters.
+   Two small glass pills instead of one wide text card: quick to scan,
+   doesn't compete with the form for attention. */
 function fileNoteHTML(){
   return `
-    <div class="info-note">
-      <span class="info-note-icon">i</span>
-      <div class="info-note-body">
-        <p><strong>Auto-numbered filenames:</strong> every prompt saves as <code>PromptXXXDDMMYYYY.txt</code> — for example, <code>Prompt00118092026.txt</code> is the 1st prompt generated on 18/09/2026. Numbering resets to 001 at the start of each new day and climbs to 999 before it resets again.</p>
-        <p><strong>Pick your folder once:</strong> the first time you click Generate, you'll be asked to choose an output folder (e.g. your "AI Prompts Output" folder in OneDrive). Every prompt after that saves straight there automatically — no need to choose again.</p>
+    <div class="archive-info-strip">
+      <div class="archive-pill">
+        <div class="pill-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <div class="pill-content">
+          <span class="pill-title">Auto-numbered filenames</span>
+          <span class="pill-desc">Saves as <code class="filename-badge">PromptXXXDDMMYYYY.txt</code> — resets to 001 each new day.</span>
+        </div>
+      </div>
+      <div class="archive-pill">
+        <div class="pill-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div class="pill-content">
+          <span class="pill-title">Pick your folder once</span>
+          <span class="pill-desc">Choose a destination on your first Generate — every prompt after that saves straight there.</span>
+        </div>
       </div>
     </div>
   `;
