@@ -1826,22 +1826,22 @@ const RUNTIME_CONFIG = {
     profile: 'Analytical & Multi-Step Deduction'
   },
   tot: {
-    temp: '0.4 to 0.6 (Moderate exploration across branching reasoning paths)',
+    temp: '0.6 (Balanced for branching exploration and structured evaluation)',
     models: 'GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro',
     profile: 'Exploratory Multi-Path Reasoning'
   },
   react: {
-    temp: '0.3 (Low-to-moderate for reliable tool-call formatting)',
+    temp: '0.3 (Deterministic for reliable thought-action-observation cycles and tool execution)',
     models: 'GPT-4o, Claude 3.5 Sonnet, Llama 3.3',
     profile: 'Iterative Reasoning + Action'
   },
   selfconsistency: {
-    temp: '0.7 to 0.9 (Higher randomness needed to generate diverse independent samples)',
+    temp: '0.7 (Essential for sampling diversity and majority voting)',
     models: 'GPT-4o, Claude 3.5 Sonnet, Llama 3.3',
     profile: 'Multi-Sample Consensus'
   },
   leasttomost: {
-    temp: '0.3 (Low randomness to keep subproblem decomposition consistent)',
+    temp: '0.2 (Low randomness to prevent error accumulation across sequential sub-steps)',
     models: 'GPT-4o, Claude 3.5 Sonnet, DeepSeek-R1',
     profile: 'Sequential Subproblem Decomposition'
   }
