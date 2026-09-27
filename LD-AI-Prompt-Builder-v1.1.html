@@ -2025,33 +2025,33 @@ const RUNTIME_CONFIG = {
     profile: 'Operational / Step-by-Step'
   },
   race: {
-    temp: '0.5 (Grounded for accuracy and context synthesis)',
+    temp: '0.5 (Grounded for context and accuracy)',
     models: 'Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro',
     profile: 'High-Fidelity Reference Analysis'
   },
   cot: {
-    temp: '0.2 to 0.3 (Low randomness to preserve deterministic reasoning)',
-    models: 'o1, Claude 3.5 Sonnet, DeepSeek-R1',
+    temp: '0.2 to 0.3 (Low randomness to preserve step-by-step logic)',
+    models: 'o1, Claude 3.5 Sonnet (with reasoning), DeepSeek-R1',
     profile: 'Analytical & Multi-Step Deduction'
   },
   tot: {
-    temp: '0.6 (Balanced for branching exploration and structured evaluation)',
-    models: 'GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro',
+    temp: '0.6 (Balanced for branching exploration and evaluation)',
+    models: 'o1, GPT-4o, Claude 3.5 Sonnet',
     profile: 'Exploratory Multi-Path Reasoning'
   },
   react: {
-    temp: '0.3 (Deterministic for reliable thought-action-observation cycles and tool execution)',
+    temp: '0.3 (Deterministic for reliable thought-action-observation cycles)',
     models: 'GPT-4o, Claude 3.5 Sonnet, Llama 3.3',
     profile: 'Iterative Reasoning + Action'
   },
   selfconsistency: {
-    temp: '0.7 (Essential for sampling diversity and majority voting)',
-    models: 'GPT-4o, Claude 3.5 Sonnet, Llama 3.3',
+    temp: '0.7 to 0.8 (Higher diversity for sampling multiple paths before voting)',
+    models: 'Claude 3.5 Sonnet, GPT-4o',
     profile: 'Multi-Sample Consensus'
   },
   leasttomost: {
     temp: '0.2 (Low randomness to prevent error accumulation across sequential sub-steps)',
-    models: 'GPT-4o, Claude 3.5 Sonnet, DeepSeek-R1',
+    models: 'o1, Claude 3.5 Sonnet, DeepSeek-R1',
     profile: 'Sequential Subproblem Decomposition'
   }
 };
