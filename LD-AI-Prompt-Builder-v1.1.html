@@ -799,6 +799,357 @@
     .archive-info-strip{margin:14px 0;}
   }
 
+  /* ==========================================================================
+     Beginner Track — "Prompt Apprenticeship" (Acts 1-4)
+     A guided, narrative walkthrough for people new to prompting. Reuses the
+     same Deep Aurora Glass tokens as the rest of the app (--panel, --border,
+     --accent, --btn-tint-bg, --output-bg) so it automatically matches all
+     three themes and gets the Aurora glass blur the same way .card/.fields
+     already do.
+     ========================================================================== */
+  .act-scenario-text{margin:0 0 16px;font-size:.92rem;color:var(--text);line-height:1.55;}
+
+  /* --- Top progress tracker: 25% -> 100% across the 4 acts --- */
+  .apprentice-progress{margin:20px 0 28px;}
+  .apprentice-progress-track{
+    width:100%;
+    height:8px;
+    border-radius:5px;
+    background:var(--btn-secondary-bg);
+    overflow:hidden;
+    margin-bottom:14px;
+  }
+  .apprentice-progress-fill{
+    height:100%;
+    background:var(--accent);
+    border-radius:5px;
+    transition:width .35s ease;
+  }
+  .apprentice-progress-steps{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:8px;
+  }
+  .apprentice-step{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:.76rem;
+    font-weight:700;
+    color:var(--muted);
+  }
+  .apprentice-step-dot{
+    flex:none;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.68rem;
+    font-weight:800;
+    background:var(--btn-secondary-bg);
+    color:var(--muted);
+  }
+  .apprentice-step.is-active .apprentice-step-dot,
+  .apprentice-step.is-complete .apprentice-step-dot{
+    background:var(--accent);
+    color:#fff;
+  }
+  .apprentice-step.is-active,
+  .apprentice-step.is-complete{color:var(--text);}
+  @media (max-width:700px){
+    .apprentice-progress-steps{grid-template-columns:repeat(2, 1fr);row-gap:10px;}
+  }
+  @media (max-width:420px){
+    .apprentice-step .step-label-text{display:none;}
+  }
+
+  /* --- Act panels --- */
+  .act-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:22px 24px;
+    margin-bottom:20px;
+    box-shadow:var(--shadow-card);
+    transition:opacity .25s ease;
+  }
+  :root[data-theme="aurora"] .act-panel{
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+  }
+  .act-panel.is-locked{opacity:.55;}
+  .act-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:4px;
+  }
+  .act-number-badge{
+    flex:none;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    font-size:.95rem;
+    background:var(--accent);
+    color:#fff;
+  }
+  .act-panel.is-locked .act-number-badge{
+    background:var(--btn-secondary-bg);
+    color:var(--muted);
+  }
+  .act-title-group{display:flex;flex-direction:column;gap:2px;}
+  .act-title{margin:0;font-size:1.15rem;font-family:var(--heading-font);}
+  .act-subtitle{margin:0;font-size:.8rem;color:var(--muted);}
+  .act-complete-tag{
+    margin-left:auto;
+    flex:none;
+    font-size:.72rem;
+    font-weight:700;
+    color:var(--success-text);
+    background:var(--success-bg);
+    padding:3px 10px;
+    border-radius:999px;
+  }
+  .act-locked-msg{
+    margin:10px 0 0;
+    font-size:.85rem;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .act-body{margin-top:16px;}
+
+  /* --- Sparky intro + typing simulation --- */
+  .sparky-intro{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    margin-bottom:16px;
+  }
+  .sparky-avatar{
+    flex:none;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.15rem;
+    background:var(--card-tag-bg);
+  }
+  .sparky-intro p{margin:0;font-size:.92rem;color:var(--text);line-height:1.55;}
+  .sparky-typing{
+    display:none;
+    align-items:center;
+    gap:8px;
+    margin:14px 0;
+    font-size:.83rem;
+    color:var(--muted);
+  }
+  .sparky-typing.is-visible{display:flex;}
+  .typing-dots{display:inline-flex;gap:3px;}
+  .typing-dots span{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--muted);
+    animation:typingBounce 1s infinite ease-in-out;
+  }
+  .typing-dots span:nth-child(2){animation-delay:.15s;}
+  .typing-dots span:nth-child(3){animation-delay:.3s;}
+  @keyframes typingBounce{
+    0%, 60%, 100%{transform:translateY(0);opacity:.5;}
+    30%{transform:translateY(-4px);opacity:1;}
+  }
+
+  /* --- Simulated output boxes (email / persona answers) --- */
+  .sim-output-box{
+    background:var(--output-bg);
+    border:1px solid var(--output-border);
+    border-radius:10px;
+    padding:16px 18px;
+    color:var(--output-text);
+    font-size:.88rem;
+    line-height:1.6;
+    white-space:pre-wrap;
+    margin-bottom:4px;
+  }
+
+  /* --- Lesson callout --- */
+  .lesson-callout{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    background:var(--btn-tint-bg);
+    border:1px solid var(--border);
+    border-left:4px solid var(--accent);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-top:16px;
+  }
+  .lesson-callout-icon{flex:none;font-size:1.1rem;line-height:1;}
+  .lesson-callout p{margin:0;font-size:.88rem;color:var(--text);line-height:1.55;}
+  .lesson-callout strong{color:var(--accent);}
+
+  /* --- Act 2: persona selector --- */
+  .persona-selector{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .persona-btn{
+    font:inherit;
+    cursor:pointer;
+    padding:8px 14px;
+    font-size:.83rem;
+    font-weight:600;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    transition:background-color .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .persona-btn:hover{background:var(--btn-secondary-bg);}
+  .persona-btn.is-active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+
+  /* --- Act 3: 3-dial playground --- */
+  .dial-group{margin-bottom:18px;}
+  .dial-label{
+    display:block;
+    margin:0 0 8px;
+    font-size:.72rem;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .dial-fixed-pill{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:999px;
+    background:var(--card-tag-bg);
+    color:var(--card-tag-text);
+    font-size:.85rem;
+    font-weight:700;
+  }
+  .audience-toggle{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip-group{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip-btn{
+    font:inherit;
+    cursor:pointer;
+    padding:7px 13px;
+    font-size:.8rem;
+    font-weight:600;
+    border-radius:999px;
+    border:1px dashed var(--border);
+    background:transparent;
+    color:var(--muted);
+    transition:background-color .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .chip-btn:hover{border-color:var(--accent);}
+  .chip-btn.is-active{
+    border:1px solid var(--accent);
+    background:var(--btn-tint-bg);
+    color:var(--accent);
+  }
+  .assembly-window{margin-top:18px;}
+  .assembly-window-label{
+    display:block;
+    margin:0 0 8px;
+    font-size:.72rem;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .assembly-box{
+    background:var(--output-bg);
+    border:1px solid var(--output-border);
+    border-radius:10px;
+    padding:14px 16px;
+    color:var(--output-text);
+    font-family:var(--font-mono);
+    font-size:.86rem;
+    line-height:1.6;
+    min-height:24px;
+  }
+
+  /* --- Act 4: comparison table --- */
+  .mapping-table-wrap{overflow-x:auto;margin-top:6px;}
+  .mapping-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.85rem;
+  }
+  .mapping-table th{
+    text-align:left;
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--muted);
+    padding:0 12px 10px;
+    border-bottom:1px solid var(--border);
+  }
+  .mapping-row td{
+    padding:12px;
+    border-bottom:1px solid var(--border);
+    vertical-align:top;
+    color:var(--text);
+  }
+  .mapping-row{cursor:pointer;transition:background-color .15s ease;}
+  .mapping-row:hover,
+  .mapping-row:focus-visible{background:var(--btn-tint-bg);outline:none;}
+  .mapping-row .mapping-block-name{font-weight:700;display:flex;align-items:center;gap:6px;}
+  .mapping-caret{font-size:.7rem;color:var(--muted);display:inline-block;transition:transform .15s ease;}
+  .mapping-row.is-expanded .mapping-caret{transform:rotate(90deg);}
+  .mapping-detail-row{display:none;}
+  .mapping-detail-row.is-visible{display:table-row;}
+  .mapping-detail-row td{
+    padding:0 12px 16px;
+    border-bottom:1px solid var(--border);
+    background:var(--btn-tint-bg);
+  }
+  .mapping-detail-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    padding-top:10px;
+    font-size:.8rem;
+  }
+  .mapping-detail-grid strong{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+  .mapping-detail-grid p{margin:0;color:var(--text);line-height:1.5;}
+  @media (max-width:600px){
+    .mapping-detail-grid{grid-template-columns:1fr;}
+  }
+
+  /* --- Graduation banner (end of Act 4) --- */
+  .apprentice-graduate{
+    margin-top:18px;
+    padding:18px;
+    border-radius:var(--radius-lg);
+    background:var(--btn-tint-bg);
+    border:1px solid var(--border);
+    text-align:center;
+  }
+  .apprentice-graduate p{margin:0 0 14px;font-size:.92rem;color:var(--text);}
+
+  @media (max-width:600px){
+    .act-panel{padding:18px 16px;}
+    .act-header{gap:10px;}
+    .act-title{font-size:1.05rem;}
+  }
+
   /* ---------- Site-wide developer credit + analytics-badge footer ---------- */
   .site-footer{
     max-width:960px;
@@ -1378,24 +1729,7 @@
 </div>
 <div id="beginner-track" hidden>
   <div class="beginner-shell">
-    <header class="home-header">
-      <p class="fw-eyebrow">AI Prompt Builder / New to AI</p>
-      <h1>Start Here</h1>
-      <p class="hero-subtitle">A short, guided walkthrough for writing your first good prompt — no framework knowledge required. We're building this out now.</p>
-      <hr class="header-divider">
-    </header>
-    <div class="card-grid">
-      <div class="card">
-        <div class="card-top">
-          <span class="card-tag">Coming soon</span>
-        </div>
-        <h2>The 4-part beginner journey</h2>
-        <p>Four short, hands-on examples that walk you through the basics of writing a clear, effective prompt, one idea at a time. Once you've completed them, you'll be ready for the full Frameworks Studio.</p>
-      </div>
-    </div>
-    <div class="hero-actions">
-      <button type="button" class="btn primary" onclick="switchTrack('advanced')">Skip ahead to the Experienced Studio →</button>
-    </div>
+    <div id="beginner-track-body"></div>
   </div>
 </div>
 <footer class="site-footer">
@@ -2426,6 +2760,380 @@ function fileNoteHTML(){
   `;
 }
 
+/* ==========================================================================
+   Beginner Track — "The Prompt Apprenticeship" (Acts 1-4)
+   A narrative, hands-on walkthrough for people new to prompting, mounted
+   inside #beginner-track (which stays in the DOM at all times — see the
+   track-switching engine above). State is persisted to localStorage so
+   progress survives a reload or a trip over to the Experienced Studio and
+   back. Every act is re-rendered from beginnerState as a single HTML
+   string, the same pattern homeHTML()/frameworkHTML() already use for the
+   Experienced Studio, rather than hand-patching the DOM piece by piece.
+   ========================================================================== */
+const BEGINNER_KEY = 'aiPromptBuilderBeginnerState';
+let beginnerState = {
+  unlockedAct: 1,
+  act1Sent: false,
+  act2Persona: null,     // 'none' | 'coach' | 'cfo'
+  act3Audience: 'teen',  // 'teen' | 'pension'
+  act3Chips: []          // subset of ['under80','pizza','bullets']
+};
+
+function loadBeginnerState(){
+  try {
+    const raw = localStorage.getItem(BEGINNER_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    beginnerState = Object.assign({}, beginnerState, parsed);
+  } catch(e){ /* ignore — start fresh */ }
+}
+function saveBeginnerState(){
+  try { localStorage.setItem(BEGINNER_KEY, JSON.stringify(beginnerState)); } catch(e){ /* ignore */ }
+}
+
+function renderBeginnerTrack(){
+  const container = document.getElementById('beginner-track-body');
+  if (!container) return;
+  container.innerHTML = beginnerHTML();
+}
+
+function initBeginnerTrack(){
+  loadBeginnerState();
+  renderBeginnerTrack();
+}
+
+/* Moves the apprenticeship forward by exactly one act at a time. Guards
+   against skipping ahead (e.g. a stray double-click) or re-triggering an
+   already-unlocked act. */
+function unlockAct(n){
+  if (n <= beginnerState.unlockedAct || n > beginnerState.unlockedAct + 1) return;
+  beginnerState.unlockedAct = n;
+  saveBeginnerState();
+  renderBeginnerTrack();
+  requestAnimationFrame(() => {
+    const el = document.getElementById(`act-panel-${n}`);
+    if (el) el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block:'start' });
+  });
+}
+
+function progressTrackerHTML(){
+  const acts = [
+    { n:1, label:'The Wake-Up Call' },
+    { n:2, label:'Give It a Brain' },
+    { n:3, label:'Steer the Machine' },
+    { n:4, label:'Inspect the Engine' }
+  ];
+  const percent = Math.min(100, beginnerState.unlockedAct * 25);
+  const steps = acts.map(a => {
+    const stateClass = a.n < beginnerState.unlockedAct ? 'is-complete' : a.n === beginnerState.unlockedAct ? 'is-active' : '';
+    const icon = a.n < beginnerState.unlockedAct ? '✓' : String(a.n);
+    return `<div class="apprentice-step ${stateClass}">
+      <span class="apprentice-step-dot" aria-hidden="true">${icon}</span>
+      <span class="step-label-text">Act ${a.n}: ${escapeHtml(a.label)}</span>
+    </div>`;
+  }).join('');
+  return `
+    <div class="apprentice-progress" role="group" aria-label="Apprenticeship progress — ${percent} percent complete">
+      <div class="apprentice-progress-track"><div class="apprentice-progress-fill" style="width:${percent}%"></div></div>
+      <div class="apprentice-progress-steps">${steps}</div>
+    </div>
+  `;
+}
+
+/* ---------------------------- Act 1 ---------------------------- */
+const ACT1_EMAIL = `Subject: [Insert Subject Line Here] – Addressing the Recent Delay
+
+Dear [Insert Boss's Name],
+
+I hope this email finds you well. I wanted to circle back and touch base regarding [Insert Report Name], as I know it has been top of mind for the team and other key stakeholders moving forward.
+
+As we navigate this fast-paced, ever-evolving landscape, it has become clear that [Insert Reason For Delay] has created a bit of a bottleneck. Rest assured, we are leveraging all available resources to move the needle and get this back on track as soon as possible.
+
+Going forward, I would love to jump on a quick sync to align on next steps and make sure we are all rowing in the same direction. In the meantime, please do not hesitate to reach out if you have any questions or concerns — my door (and inbox) is always open.
+
+We remain fully committed to delivering best-in-class results and driving this initiative forward with a sense of urgency. I appreciate your patience and understanding as we work to circle back with a revised timeline for [Insert New Deadline].
+
+Thank you again for your continued support. Looking forward to touching base soon and getting this over the finish line together.
+
+Best regards,
+[Insert Your Name]`;
+
+function act1HTML(){
+  const sent = beginnerState.act1Sent;
+  return `
+    <section class="act-panel" data-act="1" id="act-panel-1">
+      <div class="act-header">
+        <span class="act-number-badge" aria-hidden="true">1</span>
+        <div class="act-title-group">
+          <h2 class="act-title">Act 1 — The Wake-Up Call</h2>
+          <p class="act-subtitle">Meet Sparky.</p>
+        </div>
+        ${beginnerState.unlockedAct > 1 ? '<span class="act-complete-tag">✓ Complete</span>' : ''}
+      </div>
+      <div class="act-body">
+        <div class="sparky-intro">
+          <span class="sparky-avatar" aria-hidden="true">⚡</span>
+          <p>Sparky is an eager AI assistant with plenty of enthusiasm and absolutely zero common sense. Give it a vague instruction and see what comes back.</p>
+        </div>
+        <button type="button" class="btn primary" id="act1-send-btn" onclick="handleAct1Send()"${sent ? ' disabled' : ''}>Send Vague Prompt: "Write an email about the late report"</button>
+        <div class="sparky-typing" id="act1-typing"><span>Sparky is typing</span><span class="typing-dots"><span></span><span></span><span></span></span></div>
+        ${sent ? `
+        <div class="sim-output-box" id="act1-output" style="margin-top:16px;">${escapeHtml(ACT1_EMAIL)}</div>
+        <div class="lesson-callout">
+          <span class="lesson-callout-icon" aria-hidden="true">💡</span>
+          <p><strong>Lesson:</strong> Vague prompts force the AI to guess.</p>
+        </div>
+        <div style="margin-top:16px;">
+          <button type="button" class="btn secondary" onclick="unlockAct(2)"${beginnerState.unlockedAct > 1 ? ' disabled' : ''}>${beginnerState.unlockedAct > 1 ? 'Act 2 unlocked ✓' : 'Continue to Act 2 →'}</button>
+        </div>` : ''}
+      </div>
+    </section>
+  `;
+}
+
+function handleAct1Send(){
+  if (beginnerState.act1Sent) return;
+  const btn = document.getElementById('act1-send-btn');
+  const typingEl = document.getElementById('act1-typing');
+  if (btn) btn.setAttribute('disabled', 'true');
+  if (typingEl) typingEl.classList.add('is-visible');
+  const delay = prefersReducedMotion() ? 50 : 1500;
+  window.setTimeout(() => {
+    beginnerState.act1Sent = true;
+    saveBeginnerState();
+    renderBeginnerTrack();
+  }, delay);
+}
+
+/* ---------------------------- Act 2 ---------------------------- */
+const ACT2_PERSONA_LABELS = { none:'No Persona', coach:'High School Careers Coach', cfo:'Grumpy CFO' };
+const ACT2_OUTPUTS = {
+  none: `Practice common interview questions, dress professionally, and arrive ten minutes early. Bring a copy of your resume, make eye contact, and send a thank-you email afterwards.`,
+  coach: `Hey, first interviews are nerve-wracking for everyone, so give yourself credit just for showing up! Practise saying your strengths out loud until they feel natural, like "I'm reliable and I show up on time, every time." Bring a notebook, ask one question back like "What does a great first month look like?", and remember: they already like you enough to bring you in. Send a short thank-you email that night. You've got this!`,
+  cfo: `Nobody cares about your "passion" — they want proof you'll show up, do the work, and not cost this company money in mistakes. Know the numbers: what the business sells, and where you fit on the cost line, not just the culture deck. Don't oversell soft skills, and answer in one breath, not three. If you don't know something, say so — guessing wastes everyone's time. And don't ask about holiday days in the first interview.`
+};
+
+function act2HTML(){
+  const locked = beginnerState.unlockedAct < 2;
+  const persona = beginnerState.act2Persona;
+  const buttons = Object.keys(ACT2_PERSONA_LABELS).map(id =>
+    `<button type="button" class="persona-btn${persona === id ? ' is-active' : ''}" onclick="selectPersona('${id}')" aria-pressed="${persona === id}">${escapeHtml(ACT2_PERSONA_LABELS[id])}</button>`
+  ).join('');
+
+  const bodyContent = locked ? `<p class="act-locked-msg">🔒 Complete Act 1 to unlock.</p>` : `
+    <p class="act-scenario-text">Sparky's ready for round two. Same request — advice for a first job interview — but this time, give it a role first.</p>
+    <div class="persona-selector">${buttons}</div>
+    ${persona ? `
+    <div class="sim-output-box">${escapeHtml(ACT2_OUTPUTS[persona])}</div>
+    <div class="lesson-callout">
+      <span class="lesson-callout-icon" aria-hidden="true">💡</span>
+      <p><strong>Lesson:</strong> Role sets vocabulary and perspective.</p>
+    </div>
+    <div style="margin-top:16px;">
+      <button type="button" class="btn secondary" onclick="unlockAct(3)"${beginnerState.unlockedAct > 2 ? ' disabled' : ''}>${beginnerState.unlockedAct > 2 ? 'Act 3 unlocked ✓' : 'Continue to Act 3 →'}</button>
+    </div>` : ''}
+  `;
+
+  return `
+    <section class="act-panel${locked ? ' is-locked' : ''}" data-act="2" id="act-panel-2">
+      <div class="act-header">
+        <span class="act-number-badge" aria-hidden="true">2</span>
+        <div class="act-title-group">
+          <h2 class="act-title">Act 2 — Give It a Brain</h2>
+          <p class="act-subtitle">Same question, three very different Sparkys.</p>
+        </div>
+        ${beginnerState.unlockedAct > 2 ? '<span class="act-complete-tag">✓ Complete</span>' : ''}
+      </div>
+      <div class="act-body">${bodyContent}</div>
+    </section>
+  `;
+}
+
+function selectPersona(id){
+  if (!ACT2_PERSONA_LABELS[id] || beginnerState.unlockedAct < 2) return;
+  beginnerState.act2Persona = id;
+  saveBeginnerState();
+  renderBeginnerTrack();
+}
+
+/* ---------------------------- Act 3 ---------------------------- */
+const ACT3_AUDIENCES = {
+  teen: '14-year-old with a savings account',
+  pension: 'pension fund manager'
+};
+const ACT3_CHIPS = {
+  under80: 'Under 80 words',
+  pizza: 'Pizza analogy',
+  bullets: '3 bullet points'
+};
+
+function buildAct3Prompt(){
+  const audience = ACT3_AUDIENCES[beginnerState.act3Audience] || ACT3_AUDIENCES.teen;
+  let s = `Explain compound interest to a ${audience}.`;
+  if (beginnerState.act3Chips.includes('pizza')) s += ' Use a pizza analogy.';
+  if (beginnerState.act3Chips.includes('under80')) s += ' Keep it under 80 words.';
+  if (beginnerState.act3Chips.includes('bullets')) s += ' Structure the answer as 3 bullet points.';
+  return s;
+}
+
+function act3HTML(){
+  const locked = beginnerState.unlockedAct < 3;
+  const audienceButtons = Object.keys(ACT3_AUDIENCES).map(id =>
+    `<button type="button" class="persona-btn${beginnerState.act3Audience === id ? ' is-active' : ''}" onclick="selectAudience('${id}')" aria-pressed="${beginnerState.act3Audience === id}">${escapeHtml(ACT3_AUDIENCES[id])}</button>`
+  ).join('');
+  const chipButtons = Object.keys(ACT3_CHIPS).map(id =>
+    `<button type="button" class="chip-btn${beginnerState.act3Chips.includes(id) ? ' is-active' : ''}" onclick="toggleChip('${id}')" aria-pressed="${beginnerState.act3Chips.includes(id)}">${escapeHtml(ACT3_CHIPS[id])}</button>`
+  ).join('');
+
+  const bodyContent = locked ? `<p class="act-locked-msg">🔒 Complete Act 2 to unlock.</p>` : `
+    <p class="act-scenario-text">Same task every time: <strong>explain compound interest</strong>. Turn the dials below and watch the prompt — and the answer it deserves — change completely.</p>
+    <div class="dial-group">
+      <span class="dial-label">Task (fixed)</span>
+      <span class="dial-fixed-pill">Explain compound interest</span>
+    </div>
+    <div class="dial-group">
+      <span class="dial-label">Audience</span>
+      <div class="audience-toggle">${audienceButtons}</div>
+    </div>
+    <div class="dial-group">
+      <span class="dial-label">Constraints</span>
+      <div class="chip-group">${chipButtons}</div>
+    </div>
+    <div class="assembly-window">
+      <span class="assembly-window-label">Live assembly</span>
+      <div class="assembly-box" id="act3-assembly">${escapeHtml(buildAct3Prompt())}</div>
+    </div>
+    <div class="lesson-callout">
+      <span class="lesson-callout-icon" aria-hidden="true">💡</span>
+      <p><strong>Same task, different prompt</strong> — audience and constraints do as much work as the instructions themselves.</p>
+    </div>
+    <div style="margin-top:16px;">
+      <button type="button" class="btn secondary" onclick="unlockAct(4)"${beginnerState.unlockedAct > 3 ? ' disabled' : ''}>${beginnerState.unlockedAct > 3 ? 'Act 4 unlocked ✓' : 'Continue to Act 4 →'}</button>
+    </div>
+  `;
+
+  return `
+    <section class="act-panel${locked ? ' is-locked' : ''}" data-act="3" id="act-panel-3">
+      <div class="act-header">
+        <span class="act-number-badge" aria-hidden="true">3</span>
+        <div class="act-title-group">
+          <h2 class="act-title">Act 3 — Steer the Machine</h2>
+          <p class="act-subtitle">The 3-dial playground.</p>
+        </div>
+        ${beginnerState.unlockedAct > 3 ? '<span class="act-complete-tag">✓ Complete</span>' : ''}
+      </div>
+      <div class="act-body">${bodyContent}</div>
+    </section>
+  `;
+}
+
+function selectAudience(id){
+  if (!ACT3_AUDIENCES[id] || beginnerState.unlockedAct < 3) return;
+  beginnerState.act3Audience = id;
+  saveBeginnerState();
+  renderBeginnerTrack();
+}
+function toggleChip(id){
+  if (!ACT3_CHIPS[id] || beginnerState.unlockedAct < 3) return;
+  const idx = beginnerState.act3Chips.indexOf(id);
+  if (idx === -1) beginnerState.act3Chips.push(id); else beginnerState.act3Chips.splice(idx, 1);
+  saveBeginnerState();
+  renderBeginnerTrack();
+}
+
+/* ---------------------------- Act 4 ---------------------------- */
+/* Reads straight from the real FRAMEWORKS.rise / FRAMEWORKS.race field
+   definitions used elsewhere in the app, so this comparison can never
+   drift out of sync with what those frameworks actually ask for. */
+const ACT4_MAPPING = [
+  { block:'Role', desc:'Who the AI should act as.', riseIdx:0, raceIdx:0 },
+  { block:'Situation', desc:'The audience or background that shapes the answer.', riseIdx:null, raceIdx:2 },
+  { block:'Instructions', desc:'The actual task you want done.', riseIdx:1, raceIdx:1 },
+  { block:'Rules', desc:'Format, length, and any other constraints.', riseIdx:3, raceIdx:3 }
+];
+
+function act4HTML(){
+  const locked = beginnerState.unlockedAct < 4;
+  const rows = ACT4_MAPPING.map((m, i) => {
+    const riseField = m.riseIdx !== null ? FRAMEWORKS.rise.fields[m.riseIdx] : null;
+    const raceField = m.raceIdx !== null ? FRAMEWORKS.race.fields[m.raceIdx] : null;
+    const riseLabel = riseField ? riseField.label : 'Folded into Instructions';
+    const raceLabel = raceField ? raceField.label : 'Folded into Action';
+    return `
+      <tr class="mapping-row" data-row="${i}" tabindex="0" role="button" aria-expanded="false" onclick="toggleMappingRow(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleMappingRow(${i});}">
+        <td><span class="mapping-block-name"><span class="mapping-caret" aria-hidden="true">▶</span> ${escapeHtml(m.block)}</span></td>
+        <td>${escapeHtml(riseLabel)}</td>
+        <td>${escapeHtml(raceLabel)}</td>
+      </tr>
+      <tr class="mapping-detail-row" id="mapping-detail-${i}">
+        <td colspan="3">
+          <p class="act-scenario-text" style="margin:10px 0 0;">${escapeHtml(m.desc)}</p>
+          <div class="mapping-detail-grid">
+            <div><strong>RISE example</strong><p>${riseField ? escapeHtml(riseField.placeholder) : 'RISE keeps this inside its Instructions field rather than a separate slot.'}</p></div>
+            <div><strong>RACE example</strong><p>${raceField ? escapeHtml(raceField.placeholder) : 'RACE keeps this inside its Action field rather than a separate slot.'}</p></div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  const bodyContent = locked ? `<p class="act-locked-msg">🔒 Complete Act 3 to unlock.</p>` : `
+    <p class="act-scenario-text">You've just used four building blocks without realising it: <strong>Role</strong>, <strong>Situation</strong>, <strong>Instructions</strong>, and <strong>Rules</strong>. Click any row to see how the pro frameworks handle the same block.</p>
+    <div class="mapping-table-wrap">
+      <table class="mapping-table">
+        <thead><tr><th>Beginner block</th><th>RISE</th><th>RACE</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="apprentice-graduate">
+      <p>🎓 You've completed the Prompt Apprenticeship. You now know the four building blocks every good prompt uses — and exactly where they show up in RISE and RACE.</p>
+      <button type="button" class="btn primary" onclick="switchTrack('advanced')">Open the Frameworks Studio →</button>
+    </div>
+  `;
+
+  return `
+    <section class="act-panel${locked ? ' is-locked' : ''}" data-act="4" id="act-panel-4">
+      <div class="act-header">
+        <span class="act-number-badge" aria-hidden="true">4</span>
+        <div class="act-title-group">
+          <h2 class="act-title">Act 4 — Inspect the Engine</h2>
+          <p class="act-subtitle">How your building blocks map to the pro frameworks.</p>
+        </div>
+      </div>
+      <div class="act-body">${bodyContent}</div>
+    </section>
+  `;
+}
+
+function toggleMappingRow(i){
+  const row = document.querySelector(`.mapping-row[data-row="${i}"]`);
+  const detail = document.getElementById(`mapping-detail-${i}`);
+  if (!row || !detail) return;
+  const isVisible = detail.classList.toggle('is-visible');
+  row.classList.toggle('is-expanded', isVisible);
+  row.setAttribute('aria-expanded', String(isVisible));
+}
+
+/* ---------------------------- Container ---------------------------- */
+function beginnerHTML(){
+  return `
+    <header class="home-header">
+      <p class="fw-eyebrow">AI Prompt Builder / New to AI</p>
+      <h1>The Prompt Apprenticeship</h1>
+      <p class="hero-subtitle">Four short, hands-on scenes that show you — not just tell you — what makes a prompt work. Meet Sparky, and let's get started.</p>
+      <hr class="header-divider">
+    </header>
+    ${progressTrackerHTML()}
+    ${act1HTML()}
+    ${act2HTML()}
+    ${act3HTML()}
+    ${act4HTML()}
+    <div class="hero-actions">
+      <button type="button" class="btn ghost" onclick="switchTrack('advanced')">Skip ahead to the Experienced Studio →</button>
+    </div>
+  `;
+}
+
 function frameworkHTML(fw, id){
   const rows = fw.fields.map((f, i) => `
     <div class="field-row">
@@ -2783,6 +3491,14 @@ function handleClear(){
   statusEl.className = 'status';
   refreshFrameworkUI();
 }
+
+/* Boots the Beginner Track's own render cycle. Called down here (rather
+   than alongside initTrack() above) because it depends on beginnerState
+   and the act*HTML() functions, which are declared further down in this
+   same script than initTrack()'s call site. #beginner-track stays
+   mounted in the DOM regardless of which track is currently visible, so
+   this can safely run unconditionally on every load. */
+initBeginnerTrack();
 </script>
 
 <!-- Simple Analytics — privacy-first, cookie-less analytics.
