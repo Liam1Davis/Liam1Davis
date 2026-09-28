@@ -274,10 +274,17 @@
     background:var(--accent);
     color:#fff;
   }
+  /* Deep Aurora Glass neon glow on whichever track is currently active —
+     same rgba(192,132,252,...) glow used on .card:hover and .btn.primary
+     elsewhere, so the active tab reads as "lit up" rather than just
+     tinted a solid colour. */
+  :root[data-theme="aurora"] .track-switch-btn.is-active{
+    box-shadow:0 0 14px rgba(192,132,252,.55);
+  }
   @media (max-width:600px){
     .topbar{flex-wrap:wrap; row-gap:8px;}
     .track-switch{order:3; width:100%; justify-content:center;}
-    .track-switch-btn{padding:5px 12px;font-size:.72rem;}
+    .track-switch-btn{padding:5px 10px;font-size:.68rem;white-space:nowrap;}
   }
   a{color:inherit;}
 
@@ -691,6 +698,60 @@
   }
   .card-motif{flex:none;color:var(--card-accent, var(--accent));opacity:.85;}
   .card-motif svg{display:block;width:28px;height:28px;}
+
+  /* ---------- "Feeling overwhelmed?" fallback banner (Experienced home) ----------
+     Sits directly above the framework selector so anyone who lands in the
+     Experienced Studio first, and finds RISE/RACE-style acronyms
+     off-putting, has an immediate, low-friction way back to the guided
+     track. Shares the Deep Aurora Glass panel/blur/glow tokens the rest
+     of the app uses rather than duplicating them. */
+  .fallback-banner{
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-left:4px solid var(--accent);
+    border-radius:var(--radius-lg);
+    padding:20px 22px;
+    margin:24px 0;
+    box-shadow:var(--shadow-card);
+  }
+  :root[data-theme="aurora"] .fallback-banner{
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+  }
+  .fallback-banner-icon{
+    flex:none;
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.3rem;
+    background:var(--card-tag-bg);
+  }
+  .fallback-banner-content h2{margin:0 0 6px;font-size:1.1rem;font-family:var(--heading-font);}
+  .fallback-banner-content p{margin:0 0 14px;font-size:.88rem;color:var(--muted);line-height:1.55;}
+  @media (max-width:600px){
+    .fallback-banner{flex-direction:column;padding:18px;}
+  }
+
+  /* ---------- In-form "Confused by these fields?" helper link ---------- */
+  .fw-confused-link{
+    margin:0 0 14px;
+    font-size:.83rem;
+    color:var(--muted);
+  }
+  .fw-confused-link a{
+    color:var(--accent);
+    text-decoration:underline;
+    text-underline-offset:2px;
+    cursor:pointer;
+  }
+  .fw-confused-link a:hover{color:var(--accent-dark);}
+
   .card h2{
     margin:0 0 8px;
     font-size:1.25rem;
@@ -1762,8 +1823,8 @@
 <a class="topbar-nav-link current" id="topbar-frameworks-link" href="#">Frameworks</a>
 </div>
 <div class="track-switch" role="group" aria-label="Experience level">
-  <button type="button" class="track-switch-btn" data-track-switch="beginner" onclick="switchTrack('beginner')" aria-pressed="false">New to AI</button>
-  <button type="button" class="track-switch-btn" data-track-switch="advanced" onclick="switchTrack('advanced')" aria-pressed="false">Experienced</button>
+  <button type="button" class="track-switch-btn" data-track-switch="beginner" onclick="switchTrack('beginner')" aria-pressed="false"><span aria-hidden="true">🌱</span> New to AI / Start Here</button>
+  <button type="button" class="track-switch-btn" data-track-switch="advanced" onclick="switchTrack('advanced')" aria-pressed="false"><span aria-hidden="true">⚡</span> Frameworks Studio (Experienced)</button>
 </div>
 <div class="settings-wrap">
   <button type="button" class="settings-toggle" id="settings-toggle-btn" onclick="toggleSettings()" aria-haspopup="true" aria-expanded="false" aria-controls="settings-panel">
@@ -2393,11 +2454,29 @@ function applyTrack(trackName, opts = {}){
   updateTrackToggleUI(trackName);
 }
 
-function switchTrack(trackName){
+/* skipTransition (optional): true jumps straight to the target track with
+   no cross-fade — used by the "Feeling overwhelmed?" fallback banner so
+   that CTA reads as an immediate redirect rather than a toggle. Every
+   other call site omits it and keeps the normal animated switch. */
+function switchTrack(trackName, skipTransition){
   if (!VALID_TRACKS.includes(trackName) || trackName === currentTrack) return;
   currentTrack = trackName;
   try { localStorage.setItem(TRACK_KEY, trackName); } catch(e){ /* ignore */ }
-  applyTrack(trackName);
+  applyTrack(trackName, { skipTransition: !!skipTransition });
+}
+
+/* Used by the in-form "Confused by these fields?" helper link inside the
+   Experienced Studio: switches to the Beginner Track (preserving
+   whatever is currently typed into the framework fields, since
+   #experienced-track is never destroyed — see applyTrack() above) and
+   then scrolls straight down to the standalone 3-block Prompt Builder,
+   rather than dropping the person back at Act 1. */
+function goToBeginnerBuilder(){
+  switchTrack('beginner');
+  requestAnimationFrame(() => {
+    const el = document.getElementById('rpb-panel');
+    if (el) el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block:'start' });
+  });
 }
 
 function initTrack(){
@@ -2788,6 +2867,14 @@ function homeHTML(){
         </div>
       </details>
     </header>
+    <div class="fallback-banner" id="experienced-fallback-banner">
+      <span class="fallback-banner-icon" aria-hidden="true">🌱</span>
+      <div class="fallback-banner-content">
+        <h2>New to prompt frameworks?</h2>
+        <p>Acronyms like RISE and RACE can look complex at first. If you want a quick, hands-on walkthrough showing how AI actually interprets instructions, start with our 5-minute Guided Apprenticeship.</p>
+        <button type="button" class="btn primary" onclick="switchTrack('beginner', true)">Take Me to the Beginner Guide →</button>
+      </div>
+    </div>
     <p class="section-label" id="choose-framework">Choose a framework</p>
     <div class="card-grid">${cards}</div>
     <footer class="home-footer">${fileNoteHTML()}</footer>
@@ -3354,23 +3441,12 @@ async function handleRpbCopy(){
   }
 }
 
+/* Deliberately never gated behind act progress (unlike Acts 2-4) — this
+   is the same destination the Experienced Studio's own "Confused by
+   these fields?" helper link and fallback banner send people to
+   (goToBeginnerBuilder()), so it has to be reachable by someone who has
+   never touched the guided acts at all, not just by graduates of Act 4. */
 function rpbBuilderHTML(){
-  const locked = beginnerState.unlockedAct < 4;
-  if (locked){
-    return `
-      <section class="act-panel is-locked rpb-panel" id="rpb-panel">
-        <div class="act-header">
-          <span class="act-number-badge" aria-hidden="true">✎</span>
-          <div class="act-title-group">
-            <h2 class="act-title">Beginner Prompt Builder</h2>
-            <p class="act-subtitle">Your own open sandbox — build any prompt you like.</p>
-          </div>
-        </div>
-        <p class="act-locked-msg">🔒 Complete Act 4 to unlock.</p>
-      </section>
-    `;
-  }
-
   const presetOptions = Object.keys(RPB_ROLE_PRESETS).map(id =>
     `<option value="${id}"${beginnerState.rpbRolePreset === id ? ' selected' : ''}>${escapeHtml(RPB_ROLE_PRESETS[id].label)}</option>`
   ).join('');
@@ -3505,6 +3581,7 @@ function frameworkHTML(fw, id){
 
     <div class="fw-workspace">
       <div class="fw-main">
+        <p class="fw-confused-link">Confused by these fields? <a href="#" onclick="event.preventDefault(); goToBeginnerBuilder();">Switch back to the simple 3-block builder</a></p>
         <div class="fields">${rows}</div>
         ${fileNoteHTML()}
         <div class="action-bar">
