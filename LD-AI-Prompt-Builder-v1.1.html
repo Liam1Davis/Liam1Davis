@@ -1028,17 +1028,44 @@
     30%{transform:translateY(-4px);opacity:1;}
   }
 
-  /* --- Simulated output boxes (email / persona answers) --- */
+  /* --- Simulated output boxes (email / persona answers) ---
+     Always paired with a .sim-output-header directly above so it's never
+     ambiguous who's "talking": Sparky (the simulated AI), optionally
+     role-played as a specific persona. The header and box share a border
+     colour and touch with no gap, reading as one attributed speech card. */
+  .sim-output{margin-bottom:4px;}
+  .sim-output-header{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--btn-tint-bg);
+    border:1px solid var(--output-border);
+    border-bottom:none;
+    border-radius:10px 10px 0 0;
+    padding:9px 16px;
+  }
+  .sim-output-avatar{flex:none;font-size:.95rem;line-height:1;}
+  .sim-output-speaker{
+    font-size:.78rem;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--text);
+  }
   .sim-output-box{
     background:var(--output-bg);
     border:1px solid var(--output-border);
-    border-radius:10px;
+    border-radius:0 0 10px 10px;
     padding:16px 18px;
     color:var(--output-text);
     font-size:.88rem;
     line-height:1.6;
     white-space:pre-wrap;
-    margin-bottom:4px;
+  }
+  .persona-disclaimer{
+    margin:0 0 14px;
+    font-size:.8rem;
+    font-style:italic;
+    color:var(--muted);
   }
 
   /* --- Lesson callout --- */
@@ -3239,7 +3266,10 @@ function act1HTML(){
         <button type="button" class="btn primary" id="act1-send-btn" onclick="handleAct1Send()"${sent ? ' disabled' : ''}>Send Vague Prompt: "Write an email about the late report"</button>
         <div class="sparky-typing" id="act1-typing"><span>Sparky is typing</span><span class="typing-dots"><span></span><span></span><span></span></span></div>
         ${sent ? `
-        <div class="sim-output-box" id="act1-output" style="margin-top:16px;">${escapeHtml(ACT1_EMAIL)}</div>
+        <div class="sim-output" id="act1-output" style="margin-top:16px;">
+          <div class="sim-output-header"><span class="sim-output-avatar" aria-hidden="true">⚡</span><span class="sim-output-speaker">Sparky's reply — vague prompt, no role given</span></div>
+          <div class="sim-output-box">${escapeHtml(ACT1_EMAIL)}</div>
+        </div>
         <div class="lesson-callout">
           <span class="lesson-callout-icon" aria-hidden="true">💡</span>
           <p><strong>Lesson:</strong> Vague prompts force the AI to guess.</p>
@@ -3284,8 +3314,12 @@ function act2HTML(){
   const bodyContent = locked ? `<p class="act-locked-msg">🔒 Complete Act 1 to unlock.</p>` : `
     <p class="act-scenario-text">Sparky's ready for round two. Same request — advice for a first job interview — but this time, give it a role first.</p>
     <div class="persona-selector">${buttons}</div>
+    <p class="persona-disclaimer">Each persona below is played deliberately over-the-top on purpose, to make the contrast obvious — not literal career advice.</p>
     ${persona ? `
-    <div class="sim-output-box">${escapeHtml(ACT2_OUTPUTS[persona])}</div>
+    <div class="sim-output">
+      <div class="sim-output-header"><span class="sim-output-avatar" aria-hidden="true">⚡</span><span class="sim-output-speaker">${persona === 'none' ? "Sparky's reply — no role given" : `Sparky, role-played as: ${escapeHtml(ACT2_PERSONA_LABELS[persona])}`}</span></div>
+      <div class="sim-output-box">${escapeHtml(ACT2_OUTPUTS[persona])}</div>
+    </div>
     <div class="lesson-callout">
       <span class="lesson-callout-icon" aria-hidden="true">💡</span>
       <p><strong>Lesson:</strong> Role sets vocabulary and perspective.</p>
