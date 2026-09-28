@@ -2479,6 +2479,17 @@ function goToBeginnerBuilder(){
   });
 }
 
+/* The reverse trip: used by the "Take the 3-minute guided tour" link
+   directly above the always-open Prompt Builder, for anyone who landed
+   there first and now wants the step-by-step version. Already on the
+   Beginner Track at that point, so this is a plain scroll — no track
+   switch needed — back up to Act 1 (acts are never hidden, regardless
+   of unlock progress, so this always has somewhere to land). */
+function scrollToActs(){
+  const el = document.getElementById('act-panel-1');
+  if (el) el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block:'start' });
+}
+
 function initTrack(){
   const stored = getStoredTrack();
   if (stored){
@@ -3512,6 +3523,7 @@ function beginnerHTML(){
     ${act2HTML()}
     ${act3HTML()}
     ${act4HTML()}
+    <p class="fw-confused-link rpb-tour-link">Want to see how these blocks work step-by-step? <a href="#" onclick="event.preventDefault(); scrollToActs();">Take the 3-minute guided tour (Acts 1–4)</a> ↑</p>
     ${rpbBuilderHTML()}
     <div class="hero-actions">
       <button type="button" class="btn ghost" onclick="switchTrack('advanced')">Skip ahead to the Experienced Studio →</button>
