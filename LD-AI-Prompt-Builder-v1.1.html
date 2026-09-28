@@ -3337,6 +3337,21 @@ function countWords(s){
   return trimmed ? trimmed.split(/\s+/).length : 0;
 }
 
+/* Chip labels are noun-phrase fragments ("bullet points", "under 150
+   words") that read naturally after "apply these rules:" regardless of
+   which ones are picked. A custom rule is usually already a full
+   sentence of its own ("Use a warm tone."), so it gets appended as a
+   separate sentence rather than folded into that fragment list. Shared
+   by the assembly card and the RISE transfer below, so the rules text
+   never drifts between the two. */
+function buildRpbRulesText(){
+  const chipLabels = beginnerState.rpbChips.map(id => RPB_CHIPS[id]).filter(Boolean);
+  const customRule = (beginnerState.rpbCustomRule || '').trim();
+  const chipSentence = chipLabels.length ? `Please also apply these rules: ${chipLabels.join('; ').toLowerCase()}.` : '';
+  const customSentence = customRule ? (/[.!?]$/.test(customRule) ? customRule : `${customRule}.`) : '';
+  return [chipSentence, customSentence].filter(Boolean).join(' ');
+}
+
 /* Builds both the badge-labelled HTML shown in the assembly card and the
    plain text actually copied to the clipboard (no badge labels in there
    — those are just this card's visual grouping, not part of the prompt
@@ -3344,16 +3359,7 @@ function countWords(s){
 function buildRpbAssembly(){
   const role = (beginnerState.rpbRoleText || '').trim();
   const task = (beginnerState.rpbTask || '').trim();
-  const chipLabels = beginnerState.rpbChips.map(id => RPB_CHIPS[id]).filter(Boolean);
-  const customRule = (beginnerState.rpbCustomRule || '').trim();
-  /* Chip labels are noun-phrase fragments ("bullet points", "under 150
-     words") that read naturally after "apply these rules:" regardless of
-     which ones are picked. A custom rule is usually already a full
-     sentence of its own ("Use a warm tone."), so it gets appended as a
-     separate sentence rather than folded into that fragment list. */
-  const chipSentence = chipLabels.length ? `Please also apply these rules: ${chipLabels.join('; ').toLowerCase()}.` : '';
-  const customSentence = customRule ? (/[.!?]$/.test(customRule) ? customRule : `${customRule}.`) : '';
-  const rulesText = [chipSentence, customSentence].filter(Boolean).join(' ');
+  const rulesText = buildRpbRulesText();
 
   const sections = [];
   if (role) sections.push({ tag:'role', label:'ROLE', text:role });
@@ -3452,6 +3458,65 @@ async function handleRpbCopy(){
   }
 }
 
+/* One-click "graduate" transfer: takes whatever is currently in the
+   3-Block Builder and drops it straight into the RISE framework in the
+   Experienced Studio, rather than making someone retype it.
+
+   Field mapping (deliberately 3-of-4, not a literal 1:1): the builder's
+   Role goes to RISE's Role field, Task & Context goes to RISE's
+   Instructions field (the natural home for "the actual task", exactly as
+   Act 4's own comparison table teaches), and Rules goes to RISE's
+   Expectations field (format/constraints = success criteria). RISE's
+   Steps field is left empty — the builder never collects an ordered
+   sequence, so there's nothing honest to put there.
+
+   Renders RISE directly via renderFramework() rather than going through
+   location.hash + the hashchange-driven router: setting location.hash
+   fires 'hashchange' asynchronously, so if that later re-render landed
+   after this function's own field-filling, it would silently wipe the
+   values right back out. Calling renderFramework('rise') here is
+   synchronous, and history.replaceState() afterwards keeps the URL bar
+   honest without ever triggering that async re-render at all. */
+function transferBeginnerPromptToRise(){
+  const role = (beginnerState.rpbRoleText || '').trim();
+  const task = (beginnerState.rpbTask || '').trim();
+  const rulesText = buildRpbRulesText();
+
+  switchTrack('advanced', true);
+  renderFramework('rise');
+  if (location.hash !== '#rise') history.replaceState(null, '', '#rise');
+
+  const roleEl = document.getElementById('field-input-0');         // RISE: Role
+  const instructionsEl = document.getElementById('field-input-1'); // RISE: Instructions
+  const expectationsEl = document.getElementById('field-input-3'); // RISE: Expectations
+  if (roleEl && role) roleEl.value = role;
+  if (instructionsEl && task) instructionsEl.value = task;
+  if (expectationsEl && rulesText) expectationsEl.value = rulesText;
+  refreshFrameworkUI();
+
+  requestAnimationFrame(() => {
+    const target = document.querySelector('.fw-workspace');
+    if (target) target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block:'start' });
+  });
+}
+
+function rpbTransferCardHTML(){
+  return `
+    <section class="act-panel rpb-transfer-card" id="rpb-transfer-card">
+      <div class="act-header">
+        <span class="act-number-badge" aria-hidden="true">🚀</span>
+        <div class="act-title-group">
+          <h2 class="act-title">Ready for Advanced Frameworks?</h2>
+        </div>
+      </div>
+      <div class="act-body">
+        <p class="act-scenario-text">Transfer your current beginner prompt directly into the RISE framework in the Frameworks Studio.</p>
+        <button type="button" class="btn primary" onclick="transferBeginnerPromptToRise()">Transfer My Prompt to RISE Studio →</button>
+      </div>
+    </section>
+  `;
+}
+
 /* Deliberately never gated behind act progress (unlike Acts 2-4) — this
    is the same destination the Experienced Studio's own "Confused by
    these fields?" helper link and fallback banner send people to
@@ -3525,6 +3590,7 @@ function beginnerHTML(){
     ${act4HTML()}
     <p class="fw-confused-link rpb-tour-link">Want to see how these blocks work step-by-step? <a href="#" onclick="event.preventDefault(); scrollToActs();">Take the 3-minute guided tour (Acts 1–4)</a> ↑</p>
     ${rpbBuilderHTML()}
+    ${rpbTransferCardHTML()}
     <div class="hero-actions">
       <button type="button" class="btn ghost" onclick="switchTrack('advanced')">Skip ahead to the Experienced Studio →</button>
     </div>
