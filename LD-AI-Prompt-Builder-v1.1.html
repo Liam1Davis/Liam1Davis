@@ -1926,9 +1926,9 @@
 <a class="topbar-nav-link current" id="topbar-frameworks-link" href="#">Frameworks</a>
 <a class="topbar-nav-link topbar-privacy-link" href="#" onclick="event.preventDefault(); openPrivacyModal();"><span aria-hidden="true">🔒</span> Privacy &amp; Safety</a>
 </div>
-<div class="track-switch" role="group" aria-label="Experience level">
-  <button type="button" class="track-switch-btn" data-track-switch="beginner" onclick="switchTrack('beginner')" aria-pressed="false"><span aria-hidden="true">🌱</span> New to AI / Start Here</button>
-  <button type="button" class="track-switch-btn" data-track-switch="advanced" onclick="switchTrack('advanced')" aria-pressed="false"><span aria-hidden="true">⚡</span> Frameworks Studio (Experienced)</button>
+<div class="track-switch" role="tablist" aria-label="Experience level">
+  <button type="button" id="track-tab-beginner" class="track-switch-btn" data-track-switch="beginner" onclick="switchTrack('beginner')" role="tab" aria-selected="false" aria-controls="beginner-track"><span aria-hidden="true">🌱</span> New to AI / Start Here</button>
+  <button type="button" id="track-tab-advanced" class="track-switch-btn" data-track-switch="advanced" onclick="switchTrack('advanced')" role="tab" aria-selected="false" aria-controls="experienced-track"><span aria-hidden="true">⚡</span> Frameworks Studio (Experienced)</button>
 </div>
 <div class="settings-wrap">
   <button type="button" class="settings-toggle" id="settings-toggle-btn" onclick="toggleSettings()" aria-haspopup="true" aria-expanded="false" aria-controls="settings-panel">
@@ -1976,10 +1976,10 @@
     </div>
   </div>
 </div>
-<div id="experienced-track">
+<div id="experienced-track" role="tabpanel" aria-labelledby="track-tab-advanced">
   <div id="app"></div>
 </div>
-<div id="beginner-track" hidden>
+<div id="beginner-track" role="tabpanel" aria-labelledby="track-tab-beginner" hidden>
   <div class="beginner-shell">
     <div id="beginner-track-body"></div>
   </div>
@@ -2557,7 +2557,7 @@ function updateTrackToggleUI(trackName){
   document.querySelectorAll('.track-switch-btn').forEach(btn => {
     const isActive = btn.getAttribute('data-track-switch') === trackName;
     btn.classList.toggle('is-active', isActive);
-    btn.setAttribute('aria-pressed', String(isActive));
+    btn.setAttribute('aria-selected', String(isActive));
   });
 }
 
@@ -3735,10 +3735,10 @@ function rpbBuilderHTML(){
         <div class="rpb-assembly-card" id="rpb-assembly-card">
           <div class="rpb-assembly-header">
             <span class="assembly-window-label">Live assembly</span>
-            <span class="rpb-word-count" id="rpb-word-count">${wordCount} word${wordCount === 1 ? '' : 's'}</span>
+            <span class="rpb-word-count" id="rpb-word-count" aria-live="polite">${wordCount} word${wordCount === 1 ? '' : 's'}</span>
           </div>
           <div class="rpb-assembly-content" id="rpb-assembly-content">${assemblyHtml}</div>
-          <button type="button" class="btn primary rpb-copy-btn" id="rpb-copy-btn" onclick="handleRpbCopy()">Copy Prompt</button>
+          <button type="button" class="btn primary rpb-copy-btn" id="rpb-copy-btn" onclick="handleRpbCopy()" aria-live="polite">Copy Prompt</button>
         </div>
       </div>
     </section>
@@ -3838,12 +3838,12 @@ function frameworkHTML(fw, id){
           ${supportsShare() ? `<button class="btn secondary" id="share-btn" onclick="handleShare()" disabled>Share…</button>` : ''}
           <button class="btn ghost" onclick="handleClear()">Clear form</button>
         </div>
-        <div id="status-msg" class="status"></div>
+        <div id="status-msg" class="status" role="status" aria-live="polite"></div>
         <div class="preview-section">
           <div class="preview-header">
             <div class="preview-header-text">
               <h3>Generated Prompt</h3>
-              <p class="preview-status-line" id="preview-status-line">${escapeHtml(fw.name)} · Not generated yet</p>
+              <p class="preview-status-line" id="preview-status-line" aria-live="polite">${escapeHtml(fw.name)} · Not generated yet</p>
             </div>
             <button class="btn ghost small" onclick="handleCopy()">Copy</button>
           </div>
