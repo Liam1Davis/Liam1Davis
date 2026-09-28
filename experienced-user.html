@@ -5,27 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ================= SEO / discoverability ================= -->
-<title>AI Prompt Builder — Choose Your Starting Point</title>
-<meta name="description" content="AI Prompt Builder: turn proven prompt engineering frameworks into structured, ready-to-use AI prompts. Start with a guided walkthrough, or jump straight into the Frameworks Studio.">
+<title>AI Prompt Builder — Frameworks Studio (Experienced)</title>
+<meta name="description" content="Turn proven prompt engineering frameworks (RISE, RACE, Chain-of-Thought, Tree-of-Thought, ReAct, Self-Consistency, Least-to-Most) into structured, ready-to-use AI prompts, with live assembly.">
 <meta name="keywords" content="AI prompt builder, prompt engineering, prompt framework, RISE framework, RACE framework, chain of thought prompting, tree of thought, ReAct prompting, self-consistency prompting, least-to-most prompting, ChatGPT prompts, Claude prompts, prompt generator">
 <meta name="author" content="Liam Davis">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://liam1davis.github.io/Liam1Davis/index.html">
+<link rel="canonical" href="https://liam1davis.github.io/Liam1Davis/experienced-user.html">
 
 <!-- Open Graph (Facebook, LinkedIn, Slack, etc.) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI Prompt Builder">
-<meta property="og:title" content="AI Prompt Builder — Choose Your Starting Point">
-<meta property="og:description" content="AI Prompt Builder: turn proven prompt engineering frameworks into structured, ready-to-use AI prompts. Start with a guided walkthrough, or jump straight into the Frameworks Studio.">
-<meta property="og:url" content="https://liam1davis.github.io/Liam1Davis/index.html">
+<meta property="og:title" content="AI Prompt Builder — Frameworks Studio (Experienced)">
+<meta property="og:description" content="Turn proven prompt engineering frameworks (RISE, RACE, Chain-of-Thought, Tree-of-Thought, ReAct, Self-Consistency, Least-to-Most) into structured, ready-to-use AI prompts, with live assembly.">
+<meta property="og:url" content="https://liam1davis.github.io/Liam1Davis/experienced-user.html">
 <meta property="og:image" content="https://liam1davis.github.io/Liam1Davis/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="AI Prompt Builder — Choose Your Starting Point">
-<meta name="twitter:description" content="AI Prompt Builder: turn proven prompt engineering frameworks into structured, ready-to-use AI prompts. Start with a guided walkthrough, or jump straight into the Frameworks Studio.">
+<meta name="twitter:title" content="AI Prompt Builder — Frameworks Studio (Experienced)">
+<meta name="twitter:description" content="Turn proven prompt engineering frameworks (RISE, RACE, Chain-of-Thought, Tree-of-Thought, ReAct, Self-Consistency, Least-to-Most) into structured, ready-to-use AI prompts, with live assembly.">
 <meta name="twitter:image" content="https://liam1davis.github.io/Liam1Davis/og-image.png">
 
 <meta name="theme-color" content="#0C0A14">
@@ -1916,7 +1916,7 @@
 </div>
 <div class="track-switch" role="tablist" aria-label="Experience level">
   <a class="track-switch-btn" href="new-user.html" role="tab" aria-selected="false">New to AI / Start Here</a>
-  <a class="track-switch-btn" href="experienced-user.html" role="tab" aria-selected="false">Frameworks Studio (Experienced)</a>
+  <span class="track-switch-btn is-active" role="tab" aria-selected="true" aria-current="page">Frameworks Studio (Experienced)</span>
 </div>
 <div class="settings-wrap">
   <button type="button" class="settings-toggle" id="settings-toggle-btn" onclick="toggleSettings()" aria-haspopup="true" aria-expanded="false" aria-controls="settings-panel">
@@ -1943,27 +1943,7 @@
   </div>
 </div>
 </div>
-<div id="landing-fork">
-  <div class="beginner-shell">
-    <header class="home-header">
-      <h1>AI Prompt Builder</h1>
-      <p class="hero-subtitle">Prompts are the secret mechanism for getting what you want from AI GPTs. Turn proven prompt engineering frameworks into structured, ready-to-use inputs without memorising complex rules.</p>
-      <hr class="header-divider">
-    </header>
-    <div class="card-grid">
-      <div class="card fork-card">
-        <h2>New to AI &amp; Prompting?</h2>
-        <p>Learn how AI thinks and build your first structured prompt with our 5-minute guided walkthrough.</p>
-        <a class="btn primary" href="new-user.html">Start Guided Track →</a>
-      </div>
-      <div class="card fork-card">
-        <h2>Experienced Prompt Designer?</h2>
-        <p>Jump straight into advanced frameworks (RISE, RACE, Tree-of-Thought) with live assembly.</p>
-        <a class="btn primary" href="experienced-user.html">Open Frameworks Studio →</a>
-      </div>
-    </div>
-  </div>
-</div>
+
 <div id="experienced-track" role="tabpanel" aria-labelledby="track-tab-advanced">
   <div id="app"></div>
 </div>
@@ -2644,7 +2624,7 @@ function initTrack(){
   document.body.setAttribute('data-active-track', 'landing');
   updateTrackToggleUI(null);
 }
-showEl(document.getElementById('landing-fork'), true);
+applyTrack('advanced', { skipTransition: true });
 
 /* ==========================================================================
    Settings menu (Appearance + Output folder) — a single persistent panel
@@ -4208,6 +4188,35 @@ function handleClear(){
    mounted in the DOM regardless of which track is currently visible, so
    this can safely run unconditionally on every load. */
 initBeginnerTrack();
+
+/* Picks up a prompt handed off from the Beginner Builder's "Transfer My
+   Prompt to RISE Studio" button (see transferBeginnerPromptToRise() in
+   new-user.html) via a one-shot sessionStorage flag, since the two pages
+   no longer share a DOM the way the old single-file SPA did. Registered
+   as a SECOND DOMContentLoaded listener (the first, added above, is
+   route()) so this always runs after route() has already rendered the
+   RISE framework from the '#rise' hash in the URL -- filling fields
+   before that render would just get silently overwritten by it. */
+window.addEventListener('DOMContentLoaded', function applyBeginnerTransferIfRequested(){
+  let flagged = false;
+  try { flagged = sessionStorage.getItem('aiPromptBuilderTransferToRise') === '1'; } catch(e){ /* ignore */ }
+  if (!flagged) return;
+  try { sessionStorage.removeItem('aiPromptBuilderTransferToRise'); } catch(e){ /* ignore */ }
+  const role = (beginnerState.rpbRoleText || '').trim();
+  const task = (beginnerState.rpbTask || '').trim();
+  const rulesText = buildRpbRulesText();
+  const roleEl = document.getElementById('field-input-0');
+  const instructionsEl = document.getElementById('field-input-1');
+  const expectationsEl = document.getElementById('field-input-3');
+  if (roleEl && role) roleEl.value = role;
+  if (instructionsEl && task) instructionsEl.value = task;
+  if (expectationsEl && rulesText) expectationsEl.value = rulesText;
+  if (typeof refreshFrameworkUI === 'function') refreshFrameworkUI();
+  requestAnimationFrame(() => {
+    const target = document.querySelector('.fw-workspace');
+    if (target) target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block:'start' });
+  });
+});
 </script>
 
 <!-- Simple Analytics — privacy-first, cookie-less analytics.
