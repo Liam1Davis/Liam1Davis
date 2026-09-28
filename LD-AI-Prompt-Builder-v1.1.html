@@ -2078,7 +2078,7 @@ FRAMEWORK CHECKLIST:
    Recommended Runtime Configuration — per-framework metadata header.
    Shown identically at the top of both the downloaded .txt file and the
    text copied to the clipboard, since both read from the same compiled
-   content (see getCompiledContent below). Suggested-temperature ranges and
+   content (see generateFullOutputString below). Suggested-temperature ranges and
    model picks reflect general characteristics of each technique (e.g.
    Self-Consistency needs sampling diversity, so a higher temperature;
    Chain-of-Thought and Least-to-Most favour low, deterministic values) —
@@ -2152,21 +2152,30 @@ ${bar}
 `;
 }
 
-/* Builds the compiled "- Label: value" lines for the currently open
-   framework, from whatever is in the fields right now, plus the
-   Recommended Runtime Configuration header at the top and the fixed
-   reliability rules and checklist appended at the end. This single
-   string is what feeds the live preview, the downloaded .txt file and
-   the clipboard copy, so all three always match exactly. */
-function getCompiledContent(){
-  if (!currentFrameworkId) return { lines: [], content: '' };
-  const fw = FRAMEWORKS[currentFrameworkId];
+/* Returns the "- Label: value" lines for whichever fields are currently
+   filled in on the open framework — used both to build the compiled
+   output below and to check whether there's anything to compile yet. */
+function getFilledFieldLines(fw){
   const lines = [];
   fw.fields.forEach((f, i) => {
     const el = document.getElementById(`field-input-${i}`);
     const val = el ? el.value.trim() : '';
     if (val) lines.push(`- ${f.label}: ${val}`);
   });
+  return lines;
+}
+
+/* Single shared source of truth for the complete compiled output: the
+   Recommended Runtime Configuration header, the "====" divider line, and
+   the compiled prompt body, built fresh from whatever is in the fields
+   right now. The live preview, the Download/Export .txt button and the
+   Copy to Clipboard button all call this SAME function — never a cached
+   copy of each other's output — so all three are always byte-for-byte
+   identical. */
+function generateFullOutputString(){
+  if (!currentFrameworkId) return { lines: [], content: '' };
+  const fw = FRAMEWORKS[currentFrameworkId];
+  const lines = getFilledFieldLines(fw);
   const content = lines.length
     ? buildRuntimeConfigHeader(fw, currentFrameworkId) + lines.join('\n') + '\n\n' + RELIABILITY_BLOCK + '\n'
     : '';
@@ -2178,7 +2187,7 @@ function getCompiledContent(){
 function updatePreview(){
   const previewEl = document.getElementById('preview-box');
   if (!previewEl) return;
-  const { content } = getCompiledContent();
+  const { content } = generateFullOutputString();
   previewEl.value = content;
   const statusLine = document.getElementById('preview-status-line');
   if (statusLine && currentFrameworkId){
@@ -2628,7 +2637,7 @@ async function handleGenerate(){
   const statusEl = document.getElementById('status-msg');
   const previewEl = document.getElementById('preview-box');
 
-  const { lines, content } = getCompiledContent();
+  const { lines, content } = generateFullOutputString();
 
   if (lines.length === 0){
     statusEl.textContent = 'Please fill in at least one field before generating.';
@@ -2703,21 +2712,30 @@ async function handleShare(){
 async function handleCopy(){
   const box = document.getElementById('preview-box');
   const statusEl = document.getElementById('status-msg');
-  if (!box.value){
-    statusEl.textContent = 'Nothing to copy yet — click Generate first.';
+  const { content } = generateFullOutputString();
+
+  if (!content){
+    statusEl.textContent = 'Nothing to copy yet — fill in at least one field first.';
     statusEl.className = 'status error';
     return;
   }
+
+  /* Keep the visible preview box in sync too, in case Copy is clicked
+     before the input event has had a chance to refresh it. */
+  if (box) box.value = content;
+
   try {
-    await navigator.clipboard.writeText(box.value);
+    await navigator.clipboard.writeText(content);
     statusEl.textContent = 'Copied to clipboard.';
     statusEl.className = 'status success';
   } catch(e){
-    box.removeAttribute('readonly');
-    box.focus();
-    box.select();
-    document.execCommand('copy');
-    box.setAttribute('readonly', 'true');
+    if (box){
+      box.removeAttribute('readonly');
+      box.focus();
+      box.select();
+      document.execCommand('copy');
+      box.setAttribute('readonly', 'true');
+    }
     statusEl.textContent = 'Copied to clipboard.';
     statusEl.className = 'status success';
   }
