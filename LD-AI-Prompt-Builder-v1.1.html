@@ -1150,6 +1150,93 @@
     .act-title{font-size:1.05rem;}
   }
 
+  /* --- Beginner Prompt Builder: open sandbox below Act 4 --- */
+  .rpb-body{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:24px;
+    align-items:start;
+  }
+  @media (max-width:900px){
+    .rpb-body{grid-template-columns:1fr;}
+  }
+  .rpb-form{display:flex;flex-direction:column;gap:20px;}
+  .rpb-block{display:flex;flex-direction:column;gap:8px;}
+  .rpb-input{
+    width:100%;
+    font-family:inherit;
+    font-size:16px; /* 16px minimum avoids automatic zoom on iOS Safari */
+    padding:9px 11px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--input-bg);
+    color:var(--text);
+    transition:background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .rpb-input::placeholder{color:var(--muted);opacity:.75;}
+  .rpb-input:focus{
+    outline:none;
+    border-color:var(--accent);
+    background:var(--input-focus-bg);
+    box-shadow:var(--focus-ring);
+  }
+  select.rpb-input{cursor:pointer;}
+  textarea.rpb-input{resize:vertical;}
+  .rpb-custom-rule{margin-top:2px;}
+  .rpb-assembly-card{
+    position:sticky;
+    top:96px;
+    background:var(--readiness-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:18px;
+    box-shadow:var(--shadow-card);
+  }
+  @media (max-width:900px){
+    .rpb-assembly-card{position:static;}
+  }
+  .rpb-assembly-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .rpb-word-count{
+    font-size:.76rem;
+    font-weight:700;
+    color:var(--muted);
+    font-family:var(--font-mono);
+    white-space:nowrap;
+  }
+  .rpb-assembly-content{
+    background:var(--output-bg);
+    border:1px solid var(--output-border);
+    border-radius:10px;
+    padding:14px 16px;
+    min-height:90px;
+    margin-bottom:14px;
+  }
+  .rpb-assembly-block{margin-bottom:14px;}
+  .rpb-assembly-block:last-child{margin-bottom:0;}
+  .rpb-assembly-block p{margin:0;font-size:.87rem;line-height:1.55;color:var(--output-text);}
+  .rpb-assembly-empty{margin:0;font-size:.85rem;color:var(--muted);font-style:italic;}
+  .rpb-badge{
+    display:inline-block;
+    font-size:.66rem;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#fff;
+    padding:3px 9px;
+    border-radius:6px;
+    margin-bottom:6px;
+  }
+  .rpb-badge-role{background:#2563EB;}
+  .rpb-badge-task{background:#7C3AED;}
+  .rpb-badge-rules{background:#D97706;}
+  .rpb-copy-btn{width:100%;}
+  .rpb-copy-btn.is-copied{background:var(--success-text);border-color:var(--success-text);color:#fff;}
+
   /* ---------- Site-wide developer credit + analytics-badge footer ---------- */
   .site-footer{
     max-width:960px;
@@ -2776,7 +2863,12 @@ let beginnerState = {
   act1Sent: false,
   act2Persona: null,     // 'none' | 'coach' | 'cfo'
   act3Audience: 'teen',  // 'teen' | 'pension'
-  act3Chips: []          // subset of ['under80','pizza','bullets']
+  act3Chips: [],         // subset of ['under80','pizza','bullets']
+  rpbRolePreset: 'studycoach',
+  rpbRoleText: 'You are a patient study and revision coach who helps students prepare for exams and understand tricky topics.',
+  rpbTask: '',
+  rpbChips: [],          // subset of ['under150','bullets','plain','example','steps']
+  rpbCustomRule: ''
 };
 
 function loadBeginnerState(){
@@ -3114,6 +3206,222 @@ function toggleMappingRow(i){
   row.setAttribute('aria-expanded', String(isVisible));
 }
 
+/* ------------------------ Beginner Prompt Builder ------------------------
+   An open, unguided sandbox sitting directly below Act 4 — once you've
+   been through the narrative acts, this is where you build a real prompt
+   of your own from the same three blocks (Role / Task & Context /
+   Rules), with a live assembly card that updates as you type. Continuous
+   text inputs (the role text, task, and custom rule) update the assembly
+   card and word count directly via updateRpbAssembly() rather than going
+   through renderBeginnerTrack() — a full re-render would replace the
+   textareas mid-keystroke and throw away focus and cursor position, the
+   same reason the Experienced Studio's field-input-N textareas never get
+   wiped by their own oninput handler either. Only discrete clicks (the
+   preset dropdown, the rule chips) touch the DOM directly too, for the
+   same reason — nothing in this section calls renderBeginnerTrack(). */
+const RPB_ROLE_PRESETS = {
+  studycoach: { label:'Study & Revision Coach', text:'You are a patient study and revision coach who helps students prepare for exams and understand tricky topics.' },
+  admin:      { label:'Office Administrative Assistant', text:'You are an efficient office administrative assistant who handles scheduling, correspondence, and day-to-day admin tasks.' },
+  interview:  { label:'Job Interview Coach', text:'You are an encouraging job interview coach who helps candidates prepare clear, confident answers.' },
+  support:    { label:'Customer Support Specialist', text:'You are a friendly customer support specialist who resolves issues clearly and politely.' },
+  custom:     { label:'Custom (write your own)', text:'' }
+};
+const RPB_CHIPS = {
+  under150: 'Under 150 words',
+  bullets: 'Bullet points',
+  plain: 'Plain English',
+  example: 'Include 1 example',
+  steps: 'Step-by-step'
+};
+
+function countWords(s){
+  const trimmed = (s || '').trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
+}
+
+/* Builds both the badge-labelled HTML shown in the assembly card and the
+   plain text actually copied to the clipboard (no badge labels in there
+   — those are just this card's visual grouping, not part of the prompt
+   itself). */
+function buildRpbAssembly(){
+  const role = (beginnerState.rpbRoleText || '').trim();
+  const task = (beginnerState.rpbTask || '').trim();
+  const chipLabels = beginnerState.rpbChips.map(id => RPB_CHIPS[id]).filter(Boolean);
+  const customRule = (beginnerState.rpbCustomRule || '').trim();
+  /* Chip labels are noun-phrase fragments ("bullet points", "under 150
+     words") that read naturally after "apply these rules:" regardless of
+     which ones are picked. A custom rule is usually already a full
+     sentence of its own ("Use a warm tone."), so it gets appended as a
+     separate sentence rather than folded into that fragment list. */
+  const chipSentence = chipLabels.length ? `Please also apply these rules: ${chipLabels.join('; ').toLowerCase()}.` : '';
+  const customSentence = customRule ? (/[.!?]$/.test(customRule) ? customRule : `${customRule}.`) : '';
+  const rulesText = [chipSentence, customSentence].filter(Boolean).join(' ');
+
+  const sections = [];
+  if (role) sections.push({ tag:'role', label:'ROLE', text:role });
+  if (task) sections.push({ tag:'task', label:'TASK', text:task });
+  if (rulesText) sections.push({ tag:'rules', label:'RULES', text:rulesText });
+
+  const html = sections.length
+    ? sections.map(s => `<div class="rpb-assembly-block"><span class="rpb-badge rpb-badge-${s.tag}">${s.label}</span><p>${escapeHtml(s.text)}</p></div>`).join('')
+    : `<p class="rpb-assembly-empty">Fill in a role and a task above to see your prompt come together here.</p>`;
+
+  const plain = sections.map(s => s.text).join('\n\n');
+  return { html, plain };
+}
+
+function updateRpbAssembly(){
+  const contentEl = document.getElementById('rpb-assembly-content');
+  if (!contentEl) return;
+  const { html, plain } = buildRpbAssembly();
+  contentEl.innerHTML = html;
+  const countEl = document.getElementById('rpb-word-count');
+  const n = countWords(plain);
+  if (countEl) countEl.textContent = `${n} word${n === 1 ? '' : 's'}`;
+}
+
+function handleRpbRoleInput(value){
+  beginnerState.rpbRoleText = value;
+  saveBeginnerState();
+  updateRpbAssembly();
+}
+function handleRpbTaskInput(value){
+  beginnerState.rpbTask = value;
+  saveBeginnerState();
+  updateRpbAssembly();
+}
+function handleRpbCustomRuleInput(value){
+  beginnerState.rpbCustomRule = value;
+  saveBeginnerState();
+  updateRpbAssembly();
+}
+function handleRolePresetChange(id){
+  if (!RPB_ROLE_PRESETS[id]) return;
+  beginnerState.rpbRolePreset = id;
+  beginnerState.rpbRoleText = RPB_ROLE_PRESETS[id].text;
+  saveBeginnerState();
+  const textEl = document.getElementById('rpb-role-text');
+  if (textEl) textEl.value = beginnerState.rpbRoleText;
+  updateRpbAssembly();
+}
+function toggleRpbChip(id){
+  if (!RPB_CHIPS[id]) return;
+  const idx = beginnerState.rpbChips.indexOf(id);
+  if (idx === -1) beginnerState.rpbChips.push(id); else beginnerState.rpbChips.splice(idx, 1);
+  saveBeginnerState();
+  const btn = document.querySelector(`.rpb-chip-btn[data-chip="${id}"]`);
+  if (btn){
+    const active = beginnerState.rpbChips.includes(id);
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  }
+  updateRpbAssembly();
+}
+
+async function handleRpbCopy(){
+  const { plain } = buildRpbAssembly();
+  const btn = document.getElementById('rpb-copy-btn');
+  if (!plain){
+    if (btn){
+      const original = btn.textContent;
+      btn.textContent = 'Nothing to copy yet';
+      window.setTimeout(() => { btn.textContent = original; }, 1400);
+    }
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(plain);
+  } catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = plain;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  if (btn){
+    const original = btn.getAttribute('data-label') || btn.textContent;
+    btn.setAttribute('data-label', original);
+    btn.textContent = 'Copied!';
+    btn.classList.add('is-copied');
+    window.setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove('is-copied');
+    }, 1400);
+  }
+}
+
+function rpbBuilderHTML(){
+  const locked = beginnerState.unlockedAct < 4;
+  if (locked){
+    return `
+      <section class="act-panel is-locked rpb-panel" id="rpb-panel">
+        <div class="act-header">
+          <span class="act-number-badge" aria-hidden="true">✎</span>
+          <div class="act-title-group">
+            <h2 class="act-title">Beginner Prompt Builder</h2>
+            <p class="act-subtitle">Your own open sandbox — build any prompt you like.</p>
+          </div>
+        </div>
+        <p class="act-locked-msg">🔒 Complete Act 4 to unlock.</p>
+      </section>
+    `;
+  }
+
+  const presetOptions = Object.keys(RPB_ROLE_PRESETS).map(id =>
+    `<option value="${id}"${beginnerState.rpbRolePreset === id ? ' selected' : ''}>${escapeHtml(RPB_ROLE_PRESETS[id].label)}</option>`
+  ).join('');
+
+  const chipButtons = Object.keys(RPB_CHIPS).map(id => {
+    const active = beginnerState.rpbChips.includes(id);
+    return `<button type="button" class="chip-btn rpb-chip-btn${active ? ' is-active' : ''}" data-chip="${id}" onclick="toggleRpbChip('${id}')" aria-pressed="${active}">${escapeHtml(RPB_CHIPS[id])}</button>`;
+  }).join('');
+
+  const { html: assemblyHtml, plain: assemblyPlain } = buildRpbAssembly();
+  const wordCount = countWords(assemblyPlain);
+
+  return `
+    <section class="act-panel rpb-panel" id="rpb-panel">
+      <div class="act-header">
+        <span class="act-number-badge" aria-hidden="true">✎</span>
+        <div class="act-title-group">
+          <h2 class="act-title">Beginner Prompt Builder</h2>
+          <p class="act-subtitle">Your own open sandbox — mix and match to build a real prompt.</p>
+        </div>
+      </div>
+      <div class="act-body rpb-body">
+        <div class="rpb-form">
+          <div class="rpb-block">
+            <span class="dial-label">Block 1 · Role</span>
+            <select class="rpb-input" id="rpb-role-preset" onchange="handleRolePresetChange(this.value)">${presetOptions}</select>
+            <textarea class="rpb-input" id="rpb-role-text" rows="2" placeholder="e.g. You are a patient study and revision coach." oninput="handleRpbRoleInput(this.value)">${escapeHtml(beginnerState.rpbRoleText)}</textarea>
+          </div>
+          <div class="rpb-block">
+            <span class="dial-label">Block 2 · Task &amp; context</span>
+            <textarea class="rpb-input" id="rpb-task-text" rows="3" placeholder="e.g. Help me plan a 1-hour revision session for my biology exam next Tuesday, covering cells and genetics." oninput="handleRpbTaskInput(this.value)">${escapeHtml(beginnerState.rpbTask)}</textarea>
+          </div>
+          <div class="rpb-block">
+            <span class="dial-label">Block 3 · Rules &amp; constraints</span>
+            <div class="chip-group">${chipButtons}</div>
+            <input type="text" class="rpb-input rpb-custom-rule" id="rpb-custom-rule" placeholder="Optional custom rule — e.g. Use a friendly, upbeat tone." value="${escapeHtml(beginnerState.rpbCustomRule)}" oninput="handleRpbCustomRuleInput(this.value)">
+          </div>
+        </div>
+        <div class="rpb-assembly-card" id="rpb-assembly-card">
+          <div class="rpb-assembly-header">
+            <span class="assembly-window-label">Live assembly</span>
+            <span class="rpb-word-count" id="rpb-word-count">${wordCount} word${wordCount === 1 ? '' : 's'}</span>
+          </div>
+          <div class="rpb-assembly-content" id="rpb-assembly-content">${assemblyHtml}</div>
+          <button type="button" class="btn primary rpb-copy-btn" id="rpb-copy-btn" onclick="handleRpbCopy()">Copy Prompt</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 /* ---------------------------- Container ---------------------------- */
 function beginnerHTML(){
   return `
@@ -3128,6 +3436,7 @@ function beginnerHTML(){
     ${act2HTML()}
     ${act3HTML()}
     ${act4HTML()}
+    ${rpbBuilderHTML()}
     <div class="hero-actions">
       <button type="button" class="btn ghost" onclick="switchTrack('advanced')">Skip ahead to the Experienced Studio →</button>
     </div>
