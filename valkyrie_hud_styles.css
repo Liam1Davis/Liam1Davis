@@ -1,0 +1,522 @@
+/* ==========================================================================
+   V.A.L.K.Y.R.I.E. TACTICAL HUD DESIGN TOKENS & COMPONENT STYLES
+   Theme: Deep Aurora Tactical Glass
+   Target Demographic: 14–35 Operators
+   Shared by index.html, cadet.html and specialist.html.
+   ========================================================================== */
+
+:root {
+  /* Tactical Palette */
+  --valk-bg-core: #07090e;
+  --valk-glass-bg: rgba(13, 19, 33, 0.75);
+  --valk-glass-border: rgba(56, 189, 248, 0.2);
+  --valk-glass-border-hover: rgba(56, 189, 248, 0.5);
+
+  /* Accent HUD Glows */
+  --valk-cyan: #38bdf8;
+  --valk-cyan-glow: rgba(56, 189, 248, 0.35);
+  --valk-violet: #818cf8;
+  --valk-violet-glow: rgba(129, 140, 248, 0.3);
+  --valk-emerald: #10b981;
+  --valk-emerald-glow: rgba(16, 185, 129, 0.35);
+  --valk-amber: #f59e0b;
+  --valk-amber-glow: rgba(245, 158, 11, 0.35);
+  --valk-crimson: #ef4444;
+  --valk-crimson-glow: rgba(239, 68, 68, 0.4);
+
+  /* Typography */
+  --font-hud-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --font-hud-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Base Tactical Card Container */
+.valk-hud-card {
+  background: var(--valk-glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--valk-glass-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 1px 1px rgba(255, 255, 255, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.valk-hud-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--valk-cyan), transparent);
+  opacity: 0.6;
+}
+
+/* Header & Status Indicator */
+.valk-terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-hud-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--valk-cyan);
+}
+
+.valk-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--valk-emerald);
+  box-shadow: 0 0 8px var(--valk-emerald);
+  display: inline-block;
+  margin-right: 6px;
+  animation: valk-pulse 2s infinite ease-in-out;
+}
+
+@keyframes valk-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.9); }
+}
+
+/* Tactical Options (Vector Buttons) */
+.valk-vector-option {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-hud-sans);
+  color: #e2e8f0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.valk-vector-option:hover {
+  background: rgba(56, 189, 248, 0.06);
+  border-color: var(--valk-cyan);
+  box-shadow: 0 0 16px var(--valk-cyan-glow);
+  transform: translateY(-2px);
+}
+
+.valk-vector-option.selected {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: var(--valk-cyan);
+  box-shadow: 0 0 20px var(--valk-cyan-glow);
+}
+
+/* Action Trigger Button */
+.valk-action-button {
+  background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+  color: #ffffff;
+  font-family: var(--font-hud-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(79, 70, 229, 0.4);
+  transition: all 0.2s ease;
+}
+
+.valk-action-button:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 26px rgba(56, 189, 248, 0.6);
+  transform: scale(1.02);
+}
+
+.valk-action-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.valk-action-button.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.valk-action-button.secondary:hover {
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.12);
+}
+
+/* After-Action Debrief Panels */
+.valk-debrief-panel {
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-top: 16px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  animation: valk-slide-in 0.3s ease-out;
+}
+
+@keyframes valk-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.valk-debrief-tag {
+  font-family: var(--font-hud-mono);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* Target Destroyed (Win State) */
+.valk-debrief-win {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #d1fae5;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.12);
+}
+.valk-debrief-win .valk-debrief-tag { color: var(--valk-emerald); }
+
+/* Critical Drift / Insufficient Parameters (Warning State — non-punitive) */
+.valk-debrief-warn {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fde68a;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.12);
+}
+.valk-debrief-warn .valk-debrief-tag { color: var(--valk-amber); }
+
+/* Mission Scrubbed / Contract Terminated (Loss State) */
+.valk-debrief-loss {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fecaca;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.12);
+}
+.valk-debrief-loss .valk-debrief-tag { color: var(--valk-crimson); }
+
+/* ==========================================================================
+   Base page
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--valk-bg-core);
+  background-image:
+    radial-gradient(ellipse at top, rgba(56, 189, 248, 0.08), transparent 45%),
+    radial-gradient(ellipse at bottom right, rgba(129, 140, 248, 0.06), transparent 50%);
+  background-attachment: fixed;
+  color: #e2e8f0;
+  font-family: var(--font-hud-sans);
+  line-height: 1.55;
+}
+a { color: var(--valk-cyan); }
+.valk-page { max-width: 1080px; margin: 0 auto; padding: 0 20px 80px; }
+
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--valk-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Top nav (cadet.html / specialist.html)
+   ========================================================================== */
+.valk-topnav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  background: rgba(7, 9, 14, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--valk-glass-border);
+}
+.valk-topnav-left { display: flex; align-items: center; gap: 18px; min-width: 0; flex-wrap: wrap; }
+.valk-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-hud-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--valk-cyan);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.valk-back-link:hover { text-decoration: underline; }
+.valk-quick-link {
+  font-family: var(--font-hud-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.valk-quick-link:hover { color: var(--valk-cyan); }
+.valk-mission-tracker {
+  font-family: var(--font-hud-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--valk-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: rgba(16, 185, 129, 0.08);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Hero + portal cards (index.html)
+   ========================================================================== */
+.valk-hero { text-align: center; padding: 72px 20px 24px; }
+.valk-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-hud-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--valk-emerald);
+  margin-bottom: 18px;
+}
+.valk-hero h1 {
+  font-family: var(--font-hud-mono);
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  letter-spacing: 0.04em;
+  margin: 0 0 14px;
+  background: linear-gradient(135deg, #f8fafc 0%, var(--valk-cyan) 60%, var(--valk-violet) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.valk-hero p.valk-hero-sub { max-width: 560px; margin: 0 auto; color: #94a3b8; font-size: 1.02rem; }
+
+.valk-portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 40px 0 24px; }
+@media (max-width: 760px) { .valk-portal-grid { grid-template-columns: 1fr; } }
+.valk-portal-card { padding: 32px 28px; display: flex; flex-direction: column; gap: 14px; }
+.valk-portal-kicker {
+  font-family: var(--font-hud-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--valk-violet);
+}
+.valk-portal-card h2 { margin: 0; font-family: var(--font-hud-mono); font-size: 1.3rem; letter-spacing: 0.02em; color: #f8fafc; }
+.valk-portal-card p { margin: 0; color: #94a3b8; font-size: 0.95rem; flex: 1; }
+a.valk-action-button { text-decoration: none; display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; }
+
+/* ==========================================================================
+   Missions (cadet.html)
+   ========================================================================== */
+.valk-mission-card { padding: 0; margin-bottom: 28px; }
+.valk-mission-body { padding: 22px 24px 26px; }
+.valk-mission-kicker {
+  font-family: var(--font-hud-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--valk-cyan);
+  margin: 0 0 6px;
+}
+.valk-mission-card h2 { margin: 0 0 14px; font-family: var(--font-hud-mono); font-size: 1.15rem; color: #f8fafc; }
+.valk-briefing-block {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.valk-briefing-label {
+  font-family: var(--font-hud-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin: 0 0 6px;
+}
+.valk-briefing-block p { margin: 0; font-size: 0.92rem; color: #cbd5e1; font-style: italic; }
+.valk-question { font-weight: 600; color: #f1f5f9; margin: 18px 0 12px; font-size: 0.98rem; }
+
+.valk-vector-fieldset { border: 0; margin: 0; padding: 0; }
+.valk-vector-legend {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.valk-vector-option { display: flex; gap: 12px; align-items: flex-start; }
+.valk-vector-option input[type="radio"] { margin-top: 3px; accent-color: var(--valk-cyan); flex: none; }
+.valk-vector-option.is-disabled { cursor: default; opacity: 0.75; }
+.valk-vector-label-tag {
+  font-family: var(--font-hud-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.valk-mission-directive {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+.valk-mission-directive strong { color: var(--valk-cyan); }
+.valk-continue-row { margin-top: 18px; display: flex; justify-content: flex-end; }
+.valk-locked-msg { font-family: var(--font-hud-mono); font-size: 0.85rem; color: #64748b; padding: 22px 24px; }
+
+.valk-unlock-banner { text-align: center; padding: 30px 26px; margin-top: 8px; }
+.valk-unlock-banner h2 { margin: 0 0 8px; font-family: var(--font-hud-mono); color: var(--valk-emerald); }
+.valk-unlock-banner p { margin: 0 0 18px; color: #94a3b8; }
+
+/* ==========================================================================
+   Command Forge (specialist.html)
+   ========================================================================== */
+.valk-forge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; padding-top: 28px; }
+@media (max-width: 900px) { .valk-forge-grid { grid-template-columns: 1fr; } }
+.valk-forge-panel { padding: 22px 24px; }
+.valk-forge-panel h2 {
+  margin: 0 0 4px;
+  font-family: var(--font-hud-mono);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--valk-cyan);
+}
+.valk-forge-panel-sub { margin: 0 0 4px; font-size: 0.82rem; color: #64748b; }
+.valk-preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 20px; }
+.valk-preset-btn {
+  font-family: var(--font-hud-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(129, 140, 248, 0.08);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  color: #c7d2fe;
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.valk-preset-btn:hover { background: rgba(129, 140, 248, 0.16); border-color: var(--valk-violet); }
+
+.valk-field-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+.valk-field-group label {
+  font-family: var(--font-hud-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+.valk-field-group .valk-hint { font-size: 0.76rem; color: #64748b; margin: 0; }
+.valk-input, .valk-textarea, .valk-select {
+  width: 100%;
+  font-family: var(--font-hud-sans);
+  font-size: 0.94rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 9px 11px;
+  color: #f1f5f9;
+}
+.valk-input:focus, .valk-textarea:focus, .valk-select:focus {
+  outline: none;
+  border-color: var(--valk-cyan);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
+}
+.valk-textarea { resize: vertical; min-height: 70px; font-family: var(--font-hud-sans); }
+.valk-select { cursor: pointer; }
+.valk-select option { background: var(--valk-bg-core); color: #f1f5f9; }
+
+.valk-terminal {
+  background: #05070b;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+  font-family: var(--font-hud-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #a5f3fc;
+  padding: 18px;
+  min-height: 260px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.valk-terminal-empty { color: #475569; font-style: italic; }
+.valk-copy-btn { width: 100%; margin-top: 14px; }
+.valk-copy-btn.is-copied { background: linear-gradient(135deg, var(--valk-emerald), #059669); }
+
+/* ==========================================================================
+   Shared "Privacy & Safety" modal
+   ========================================================================== */
+.valk-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(2, 3, 6, 0.72);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.valk-modal-overlay:not([hidden]) { display: flex; }
+body.valk-modal-open { overflow: hidden; }
+.valk-modal-card {
+  width: min(640px, 100%);
+  max-height: calc(100vh - 80px);
+  max-height: calc(100dvh - 80px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 26px 28px 30px;
+  position: relative;
+  outline: none;
+}
+.valk-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.valk-modal-title { margin: 0; font-family: var(--font-hud-mono); font-size: 1.1rem; color: #f8fafc; }
+.valk-modal-close {
+  width: 32px; height: 32px; flex: none;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.valk-modal-close:hover { color: #f8fafc; background: rgba(255, 255, 255, 0.06); }
+.valk-modal-card section { margin-bottom: 20px; }
+.valk-modal-card section:last-child { margin-bottom: 0; }
+.valk-modal-card h3 { font-size: 0.92rem; color: #f1f5f9; margin: 0 0 8px; }
+.valk-modal-card p { font-size: 0.88rem; color: #cbd5e1; margin: 0 0 8px; }
+.valk-modal-card ul { margin: 0 0 8px; padding-left: 20px; }
+.valk-modal-card li { font-size: 0.88rem; color: #cbd5e1; margin-bottom: 6px; }
+
+.valk-footer { text-align: center; padding: 40px 20px 60px; color: #475569; font-size: 0.82rem; }
+.valk-footer a { color: #94a3b8; text-decoration: underline; }
+.valk-footer a:hover { color: var(--valk-cyan); }

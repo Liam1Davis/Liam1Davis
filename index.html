@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Prompt Builder — Choose Your Starting Point</title>
+<meta name="description" content="AI Prompt Builder: an interactive prompt-engineering trainer. Work through real-world Field Challenges, or jump straight into the Command Forge to build your own prompts.">
+<link rel="canonical" href="https://liam1davis.github.io/Liam1Davis/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AI Prompt Builder">
+<meta property="og:description" content="Choose your starting point: Field Challenges for hands-on practice, or the Command Forge to build your own prompts.">
+<link rel="stylesheet" href="valkyrie_hud_styles.css">
+</head>
+<body>
+
+<main class="valk-page">
+  <section class="valk-hero">
+    <p class="valk-hero-eyebrow"><span class="valk-status-dot" aria-hidden="true"></span> SYSTEM ONLINE</p>
+    <h1>AI PROMPT BUILDER</h1>
+    <p class="valk-hero-sub">Turn real-world scenarios into precise, ready-to-use prompts. Choose where you want to start.</p>
+  </section>
+
+  <div class="valk-portal-grid">
+    <article class="valk-hud-card valk-portal-card">
+      <p class="valk-portal-kicker">Start Here</p>
+      <h2>Field Challenges</h2>
+      <p>Four real-world scenarios — powered by the V.A.L.K.Y.R.I.E. simulation engine — teach you how a precise prompt gets the outcome you need, and how a vague one doesn't.</p>
+      <a class="valk-action-button valk-portal-cta" href="cadet.html">START FIELD CHALLENGES →</a>
+    </article>
+    <article class="valk-hud-card valk-portal-card">
+      <p class="valk-portal-kicker">For Experienced Builders</p>
+      <h2>Command Forge</h2>
+      <p>Direct the variable matrix, negative constraints, and output schema yourself — and export a compiled system prompt in one click.</p>
+      <a class="valk-action-button valk-portal-cta" href="specialist.html">ACCESS COMMAND FORGE →</a>
+    </article>
+  </div>
+
+  <p style="text-align:center;">
+    <a href="#" id="valk-privacy-link" onclick="event.preventDefault(); openPrivacyModal();">🔒 Privacy &amp; Safety Briefing</a>
+  </p>
+</main>
+
+<footer class="valk-footer">
+  <p>AI Prompt Builder — a prompt-engineering trainer. No sign-up. Nothing you type ever leaves your browser.</p>
+</footer>
+
+<!-- ================= Privacy & Safety modal (shared markup/behaviour across all 3 pages) ================= -->
+<div class="valk-modal-overlay" id="privacy-modal-overlay" hidden onclick="if(event.target === this) closePrivacyModal();">
+  <div class="valk-hud-card valk-modal-card" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title" tabindex="-1" id="privacy-modal-card">
+    <div class="valk-modal-header">
+      <h2 class="valk-modal-title" id="privacy-modal-title">Staying Safe with AI: What You Need to Know</h2>
+      <button type="button" class="valk-modal-close" onclick="closePrivacyModal()" aria-label="Close privacy guide">✕</button>
+    </div>
+    <div class="valk-modal-body">
+      <section>
+        <h3>1. Is it safe to type my notes into this website?</h3>
+        <p>Yes, completely. Think of this website like a digital notepad on your desk:</p>
+        <ul>
+          <li>Everything you type stays right here on your own computer screen.</li>
+          <li>Nothing you write is sent to an outside company, saved on the internet, or seen by anyone else.</li>
+          <li>When you click &quot;Copy&quot;, nothing leaves your browser until you paste it somewhere yourself.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>2. What happens when I paste my prompt into ChatGPT, Claude, or Copilot?</h3>
+        <p>This is the most important thing to understand:</p>
+        <ul>
+          <li>This website is just a helper tool to organize your thoughts.</li>
+          <li>The AI chat tool (like ChatGPT or Copilot) is a separate online service that answers your questions.</li>
+        </ul>
+        <p>The moment you copy your prompt and paste it into an AI chat box, that outside company receives your words. Some free tools save your questions to help train their systems, so you should always be mindful of what you paste.</p>
+      </section>
+      <section>
+        <h3>3. The 3 Simple Rules to Keep Your Information Safe</h3>
+        <ul>
+          <li><strong>Rule 1: The &quot;Noticeboard Rule&quot;</strong> — Never paste anything into an AI tool that you wouldn't feel comfortable pinning to a public noticeboard at work or school (no passwords, bank details, home addresses, or private medical notes).</li>
+          <li><strong>Rule 2: Swap Real Names for &quot;Fake Names&quot;</strong> — Replace real people and companies with generic labels (e.g. write "Help me reply to an email from a client at a bank" instead of using real names).</li>
+          <li><strong>Rule 3: Use Your Official Work or School Login</strong> — If your employer or school provides an official AI account (like Microsoft Copilot), always use that account instead of your personal email to keep your data protected under organizational agreements.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+let privacyModalLastFocus = null;
+function openPrivacyModal(){
+  const overlay = document.getElementById('privacy-modal-overlay');
+  const card = document.getElementById('privacy-modal-card');
+  if (!overlay) return;
+  privacyModalLastFocus = document.activeElement;
+  overlay.removeAttribute('hidden');
+  document.body.classList.add('valk-modal-open');
+  overlay.scrollTop = 0;
+  if (card){
+    card.scrollTop = 0;
+    if (typeof card.focus === 'function') card.focus({ preventScroll: true });
+  }
+}
+function closePrivacyModal(){
+  const overlay = document.getElementById('privacy-modal-overlay');
+  if (!overlay || overlay.hasAttribute('hidden')) return;
+  overlay.setAttribute('hidden', '');
+  document.body.classList.remove('valk-modal-open');
+  if (privacyModalLastFocus && typeof privacyModalLastFocus.focus === 'function'){
+    privacyModalLastFocus.focus();
+  }
+  privacyModalLastFocus = null;
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closePrivacyModal();
+});
+</script>
+
+<!-- Simple Analytics — privacy-first, cookie-less analytics. -->
+<script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+<noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade" /></noscript>
+</body>
+</html>
