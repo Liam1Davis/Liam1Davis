@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Prompt Builder — Choose Your Starting Point</title>
-<meta name="description" content="AI Prompt Builder: an interactive prompt-engineering trainer. Work through real-world practice scenarios, or jump straight into the Prompt Builder to build your own prompts.">
-<link rel="canonical" href="https://liam1davis.github.io/Liam1Davis/index.html">
+<title>AI Prompt Builder — Practice Scenarios</title>
+<meta name="description" content="Four real-world practice scenarios that teach you how a precise prompt gets the outcome you need, and how a vague one doesn't.">
+<link rel="canonical" href="https://liam1davis.github.io/Liam1Davis/scenarios.html">
 <meta name="theme-color" content="#07090e">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23A855F7'/%3E%3Ctext x='32' y='42' font-family='-apple-system,Segoe UI,Roboto,Arial,sans-serif' font-size='26' font-weight='800' fill='white' text-anchor='middle'%3EAI%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -291,28 +291,26 @@
     <span class="brand-mark">AI</span>
     <span class="brand-wordmark">AI Prompt Builder</span>
   </a>
+  <a class="back-link" href="index.html">&larr; Home</a>
 </header>
 
 <main class="page-shell">
-  <section class="hero">
-    <h1>AI PROMPT BUILDER</h1>
-    <p class="hero-subtitle">Turn real-world scenarios into precise, ready-to-use prompts. Choose where you want to start.</p>
+  <section class="hero" style="padding-top:24px;">
+    <p class="hero-eyebrow">Practice Scenarios</p>
+    <h1 style="font-size:2.1rem;">FOUR REAL-WORLD SCENARIOS</h1>
+    <p class="hero-subtitle">Pick the prompt you think gets the best result. Every scenario shows you why the calibrated version works.</p>
   </section>
 
-  <div class="portal-grid">
-    <article class="portal-card">
-      <p class="portal-kicker">Start Here</p>
-      <h2>Practice Scenarios</h2>
-      <p>Work through four interactive examples to see how structure, role assignment, and constraints shape output.</p>
-      <a class="btn primary" href="scenarios.html">EXPLORE SCENARIOS &rarr;</a>
-    </article>
-    <article class="portal-card">
-      <p class="portal-kicker">For Experienced Builders</p>
-      <h2>Prompt Builder</h2>
-      <p>Access the direct parameter matrix: define role, context, negative constraints, and output format with direct export.</p>
-      <a class="btn primary" href="builder.html">OPEN BUILDER &rarr;</a>
-    </article>
+  <div class="mode-toggle-row">
+    <nav class="mode-toggle" aria-label="Experience level">
+      <a href="scenarios.html" class="is-active" aria-current="page">Inexperienced AI User</a>
+      <a href="builder.html" class="">Experienced AI User</a>
+    </nav>
   </div>
+
+  <p class="scenario-tracker" id="scenario-tracker" style="margin-top:26px;">0 / 4 COMPLETE</p>
+
+  <div id="scenario-list"></div>
 
   <p style="text-align:center;">
     <a href="#" class="privacy-link" onclick="event.preventDefault(); openPrivacyModal();">Privacy and Safety Briefing</a>
@@ -382,6 +380,117 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closePrivacyModal();
 });
 
+
+const SCENARIOS = [{"title": "Streetwear Merch Drop", "focus": "Task Specificity & Fact Injection", "context": "You run social for an independent boutique. It is 10:45 PM. You have 50 pairs of rare sneakers dropping in Soho at midnight. You need an Instagram/TikTok story alert to notify local followers before the shutter opens.", "options": [{"text": "Write an exciting social media post telling sneaker fans about our secret drop in Soho tonight.", "outcome": "warn", "tag": "INEFFECTIVE: CRITICAL DATA MISSING", "explain": "Without an address or cutoff time, the AI produced generic filler. Nobody knew where to line up."}, {"text": "Draft an official corporate press release announcing our exclusive retail footwear pop-up activation at 14 Meard St.", "outcome": "warn", "tag": "INEFFECTIVE: TONE MISMATCH", "explain": "Stiff business jargon does not work for social story posts."}, {"text": "Act as a streetwear brand manager. Write a punchy 35-word story alert for an impromptu midnight drop: 50 pairs at 14 Meard St, Soho. Include: ‘Password is GHOST, doors lock 12:20 AM.’ Concise, authentic, and direct.", "outcome": "correct", "tag": "CORRECT: SPECIFICITY ACHIEVED", "explain": "Explicit operational facts (venue, quantity, password, deadline) produced an actionable, authentic alert."}], "principle": "Specific operational parameters prevent the AI from generating generic filler."}, {"title": "Live Event Audio Disruption", "focus": "Negative Constraints & Latency Reduction", "context": "You are coordinating an esports stage production with 5,000 spectators. Stage audio cuts out during an intense match. Panic threshold is 45 seconds. You must send an urgent directive to 10 floor team leads via radio comms.", "options": [{"text": "Write an urgent alert to our floor security team telling them the stage power cut out, to keep everyone calm, and tell people it's a technical break.", "outcome": "warn", "tag": "INEFFECTIVE: LATENCY CASUALTY", "explain": "The AI opened with “Hi team, hope everyone is okay!” Valuable seconds were lost reading pleasantries."}, {"text": "Tell the floor team stage audio is down. Keep it very short.", "outcome": "warn", "tag": "INEFFECTIVE: AMBIGUOUS CONSTRAINTS", "explain": "“Very short” is subjective. The AI generated a conversational narrative paragraph without numbered action steps."}, {"text": "You are a live-event crisis operations lead. Issue a 3-point tactical broadcast for 10 arena floor leads. Constraints: Exactly 3 numbered steps (1. Hold perimeter aisles, 2. Announce ‘Scheduled technical break’ on PA, 3. Stand by on radio channel 3). Under 35 words total. BANNED: Greetings, apologies, filler words. Header: ‘CODE BLACK — IMMEDIATE ACTIONS:’.", "outcome": "correct", "tag": "CORRECT: CONSTRAINTS ENFORCED", "explain": "Zero filler, 5-second read time. Floor leads secured their stations immediately."}], "principle": "In high-stakes situations, negative constraints (what to BAN) are as vital as the instructions."}, {"title": "Executive Tech Explanation", "focus": "Audience Calibration & Analogies", "context": "You are presenting to a senior business investor with decades of retail experience who does not understand software. They are worried that your app's use of “APIs” poses a cybersecurity hazard. You have 60 seconds to explain what an API actually is in plain English.", "options": [{"text": "Explain RESTful API architecture, JSON payloads, and tokenized authorization protocols.", "outcome": "warn", "tag": "INEFFECTIVE: JARGON OVERLOAD", "explain": "Complex technical terminology increased investor anxiety."}, {"text": "Explain APIs to an older person who doesn't understand computers like they are 5 years old.", "outcome": "warn", "tag": "INEFFECTIVE: CONDESCENDING TONE", "explain": "The AI spoke in baby talk, alienating an experienced executive."}, {"text": "Act as a tech startup founder pitching a traditional business investor. Explain what an API does in under 65 words without technical jargon. Use a restaurant analogy: the customer (app) gives an order to the waiter (API), who delivers it to the kitchen (database) and brings back the meal safely. Reassuring, clear, professional.", "outcome": "correct", "tag": "CORRECT: AUDIENCE CALIBRATED", "explain": "The mental model demystified the technology instantly and built investor confidence."}], "principle": "Calibrate to your audience's mental model — analogy beats technical jargon every time."}, {"title": "Creator Sponsorship Negotiation", "focus": "Role Authority & Commercial Negotiation", "context": "You manage a digital creator with 150,000 highly engaged followers. An international beverage brand sends an outreach email offering free drinks in exchange for a dedicated 60-second video integration. You need to decline the free gifting and counter-propose a paid commercial partnership.", "options": [{"text": "Write a furious response telling this multi-billion dollar drink company that free cans are insulting and demand £5,000.", "outcome": "warn", "tag": "INEFFECTIVE: HOSTILE POSTURING", "explain": "Aggressive language burned the relationship and caused the brand to blacklist the creator."}, {"text": "Write a nice email thanking them for the cans, saying sorry but we usually prefer paid deals if they have any budget left.", "outcome": "warn", "tag": "INEFFECTIVE: ZERO LEVERAGE", "explain": "Timid, apologetic phrasing signaled amateur management. The brand declined to offer budget."}, {"text": "Act as a talent manager representing a digital creator. Draft a polished, 90-word counter-proposal to an energy drink brand that offered product gifting. Decline gifting politely, highlight our audience's 7.2% active engagement rate in their target demographic, and propose an official sponsored integration package starting at £3,500. Professional, confident, diplomatic.", "outcome": "correct", "tag": "CORRECT: AUTHORITY ESTABLISHED", "explain": "Professional agency framing turned a low-ball offer into a commercial contract meeting."}], "principle": "The role assigned to the AI determines the authority and leverage in any negotiation."}];
+const STATE_KEY = 'aiPromptBuilderScenarioState';
+
+function loadState(){
+  try { return JSON.parse(localStorage.getItem(STATE_KEY)) || {}; }
+  catch(e){ return {}; }
+}
+function saveState(state){
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e){ /* ignore */ }
+}
+let state = loadState();
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function getEntry(idx){
+  if (!state[idx]) state[idx] = { selected: null, checked: false, complete: false };
+  return state[idx];
+}
+
+function completeCount(){
+  return SCENARIOS.reduce((n, _, i) => n + (state[i] && state[i].complete ? 1 : 0), 0);
+}
+function updateTracker(){
+  document.getElementById('scenario-tracker').textContent = completeCount() + ' / ' + SCENARIOS.length + ' COMPLETE';
+}
+
+function selectOption(idx, optIndex){
+  const entry = getEntry(idx);
+  if (entry.checked) return;
+  entry.selected = optIndex;
+  saveState(state);
+  renderScenarios();
+}
+
+function checkAnswer(idx){
+  const entry = getEntry(idx);
+  if (entry.selected === null || entry.selected === undefined) return;
+  entry.checked = true;
+  entry.complete = true;
+  saveState(state);
+  renderScenarios();
+  updateTracker();
+}
+
+function retryScenario(idx){
+  const entry = getEntry(idx);
+  entry.selected = null;
+  entry.checked = false;
+  saveState(state);
+  renderScenarios();
+}
+
+function scenarioHTML(idx){
+  const s = SCENARIOS[idx];
+  const entry = getEntry(idx);
+  const optionsHTML = s.options.map((opt, optIndex) => {
+    const isSelected = entry.selected === optIndex;
+    const showResult = entry.checked;
+    let cls = 'option-label';
+    if (isSelected && !showResult) cls += ' is-selected';
+    if (showResult) cls += ' is-disabled';
+    if (showResult && isSelected) cls += (opt.outcome === 'correct' ? ' result-correct' : ' result-warn');
+    const tagHTML = (showResult && isSelected)
+      ? `<span class="option-tag">${escapeHtml(opt.tag)}</span>` : '';
+    return `<label class="${cls}">
+      <input type="radio" name="scenario-${idx}-option" ${isSelected ? 'checked' : ''} ${showResult ? 'disabled' : ''} onchange="selectOption(${idx}, ${optIndex})">
+      <span class="option-text">${tagHTML}&ldquo;${escapeHtml(opt.text)}&rdquo;</span>
+    </label>`;
+  }).join('');
+
+  let feedbackHTML = '';
+  let principleHTML = '';
+  if (entry.checked && entry.selected !== null){
+    const chosen = s.options[entry.selected];
+    const isCorrect = chosen.outcome === 'correct';
+    feedbackHTML = `<div class="feedback-panel ${isCorrect ? 'is-correct' : 'is-warn'}">
+      <strong>${escapeHtml(chosen.tag)}</strong>${escapeHtml(chosen.explain)}
+    </div>`;
+    principleHTML = `<div class="key-principle"><strong>Key Principle:</strong> ${escapeHtml(s.principle)}</div>`;
+  }
+
+  const actionsHTML = entry.checked
+    ? `<div class="scenario-actions">
+        <button type="button" class="btn secondary" onclick="retryScenario(${idx})">Try Again</button>
+      </div>`
+    : `<div class="scenario-actions">
+        <button type="button" class="btn primary" ${entry.selected === null ? 'disabled' : ''} onclick="checkAnswer(${idx})">Check Answer</button>
+      </div>`;
+
+  return `<article class="scenario-card">
+    <span class="scenario-eyebrow">Scenario ${idx + 1} — ${escapeHtml(s.focus)}</span>
+    <h2>${escapeHtml(s.title)}</h2>
+    <p class="scenario-context">${escapeHtml(s.context)}</p>
+    <p class="scenario-question">Which prompt is most likely to get the result you need?</p>
+    <fieldset class="scenario-options" style="border:0;padding:0;margin:0;">${optionsHTML}</fieldset>
+    ${feedbackHTML}
+    ${principleHTML}
+    ${actionsHTML}
+  </article>`;
+}
+
+function renderScenarios(){
+  const list = document.getElementById('scenario-list');
+  list.innerHTML = SCENARIOS.map((_, idx) => scenarioHTML(idx)).join('');
+}
+
+renderScenarios();
+updateTracker();
 
 </script>
 </body>

@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Prompt Builder — Choose Your Starting Point</title>
-<meta name="description" content="AI Prompt Builder: an interactive prompt-engineering trainer. Work through real-world practice scenarios, or jump straight into the Prompt Builder to build your own prompts.">
-<link rel="canonical" href="https://liam1davis.github.io/Liam1Davis/index.html">
+<title>AI Prompt Builder — Prompt Builder</title>
+<meta name="description" content="Direct the variable matrix yourself: role, context, primary directive, negative constraints, and output schema, compiled into a system prompt in real time.">
+<link rel="canonical" href="https://liam1davis.github.io/Liam1Davis/builder.html">
 <meta name="theme-color" content="#07090e">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23A855F7'/%3E%3Ctext x='32' y='42' font-family='-apple-system,Segoe UI,Roboto,Arial,sans-serif' font-size='26' font-weight='800' fill='white' text-anchor='middle'%3EAI%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -291,36 +291,77 @@
     <span class="brand-mark">AI</span>
     <span class="brand-wordmark">AI Prompt Builder</span>
   </a>
+  <a class="back-link" href="index.html">&larr; Home</a>
 </header>
 
 <main class="page-shell">
-  <section class="hero">
-    <h1>AI PROMPT BUILDER</h1>
-    <p class="hero-subtitle">Turn real-world scenarios into precise, ready-to-use prompts. Choose where you want to start.</p>
+  <section class="hero" style="padding-top:24px;">
+    <p class="hero-eyebrow">Prompt Builder</p>
+    <h1 style="font-size:2.1rem;">BUILD YOUR OWN PROMPT</h1>
+    <p class="hero-subtitle">Set every variable yourself. The panel on the right compiles a system prompt live as you type.</p>
   </section>
 
-  <div class="portal-grid">
-    <article class="portal-card">
-      <p class="portal-kicker">Start Here</p>
-      <h2>Practice Scenarios</h2>
-      <p>Work through four interactive examples to see how structure, role assignment, and constraints shape output.</p>
-      <a class="btn primary" href="scenarios.html">EXPLORE SCENARIOS &rarr;</a>
-    </article>
-    <article class="portal-card">
-      <p class="portal-kicker">For Experienced Builders</p>
-      <h2>Prompt Builder</h2>
-      <p>Access the direct parameter matrix: define role, context, negative constraints, and output format with direct export.</p>
-      <a class="btn primary" href="builder.html">OPEN BUILDER &rarr;</a>
-    </article>
+  <div class="mode-toggle-row">
+    <nav class="mode-toggle" aria-label="Experience level">
+      <a href="scenarios.html" class="">Inexperienced AI User</a>
+      <a href="builder.html" class="is-active" aria-current="page">Experienced AI User</a>
+    </nav>
   </div>
 
-  <p style="text-align:center;">
+  <div class="forge-grid" style="margin-top:30px;">
+    <section class="forge-panel">
+      <h2>Parameter Matrix</h2>
+      <p class="forge-panel-sub">Quick-load a preset, or fill in your own.</p>
+      <div class="preset-row">
+        <button type="button" class="preset-btn" onclick="loadPreset('engineer')">Software Engineer</button>
+        <button type="button" class="preset-btn" onclick="loadPreset('strategist')">Content Strategist</button>
+        <button type="button" class="preset-btn" onclick="loadPreset('analyst')">Data Analyst</button>
+        <button type="button" class="preset-btn" onclick="loadPreset('assistant')">Executive Assistant</button>
+      </div>
+
+      <div class="field-group">
+        <label for="f-role">Role &amp; Persona</label>
+        <input type="text" class="field-input" id="f-role" placeholder="Who the AI should act as" oninput="compile()">
+      </div>
+      <div class="field-group">
+        <label for="f-context">Context &amp; Data</label>
+        <textarea class="field-input" id="f-context" placeholder="Background facts the model needs" oninput="compile()"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="f-directive">Primary Task Directive</label>
+        <textarea class="field-input" id="f-directive" placeholder="The one task you actually want done" oninput="compile()"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="f-constraints">Negative Constraints</label>
+        <p class="field-hint">What the AI must NOT do or write. One per line.</p>
+        <textarea class="field-input" id="f-constraints" placeholder="e.g. no jargon&#10;no more than 200 words" oninput="compile()"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="f-schema">Output Format</label>
+        <select class="field-input" id="f-schema" onchange="compile()">
+          <option value="Markdown">Markdown</option>
+          <option value="JSON">JSON</option>
+          <option value="Table">Table</option>
+          <option value="Bullet hierarchy">Bullet hierarchy</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="forge-panel">
+      <h2>Compiled Output</h2>
+      <p class="forge-panel-sub">Updates in real time as you edit the matrix.</p>
+      <div class="terminal" id="terminal-output" aria-live="polite"></div>
+      <button type="button" class="btn primary" id="copy-btn" style="width:100%;" onclick="copyPrompt()">COPY SYSTEM PROMPT</button>
+    </section>
+  </div>
+
+  <p style="text-align:center; margin-top:32px;">
     <a href="#" class="privacy-link" onclick="event.preventDefault(); openPrivacyModal();">Privacy and Safety Briefing</a>
   </p>
 </main>
 
 <footer class="site-footer">
-  <p>AI Prompt Builder is a client-side tool. Nothing you type is stored or sent to an external server.</p>
+  <p>Nothing typed here ever leaves your browser until you paste it somewhere yourself.</p>
 </footer>
 
 
@@ -382,6 +423,99 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closePrivacyModal();
 });
 
+
+const PRESETS = {"engineer": {"role": "a senior full-stack engineer reviewing pull requests", "context": "React/TypeScript frontend, Node/Express backend, PostgreSQL database. The team ships to production daily and has zero tolerance for unreviewed security regressions.", "directive": "Review the attached diff for bugs, security issues, and style violations before approving.", "constraints": "no praise-only comments\\nno rewriting unrelated code\\nno approving without listing at least one risk", "schema": "JSON"}, "strategist": {"role": "a content strategist planning next quarter's editorial calendar", "context": "A B2B SaaS blog with 3 pillar topics, a 2-person writing team, and a goal of doubling organic search traffic.", "directive": "Propose an 8-post content calendar mapped to the 3 pillar topics with target keywords.", "constraints": "no listicles\\nno duplicate topics across the 8 posts\\nno post titles over 70 characters", "schema": "Table"}, "analyst": {"role": "a data analyst preparing a board-level summary", "context": "Q3 churn data across 4 regions, with prior-quarter comparisons available.", "directive": "Summarize the three biggest churn drivers and recommend one action per driver.", "constraints": "no raw SQL\\nno jargon without a one-line definition\\nno more than 200 words", "schema": "Table"}, "assistant": {"role": "an executive assistant scheduling a cross-timezone leadership offsite", "context": "Five attendees across London, New York, and Singapore. A 2-day agenda with 6 working sessions and one dinner.", "directive": "Draft the finalized agenda with times converted to each attendee's local timezone.", "constraints": "no session longer than 90 minutes\\nno back-to-back sessions without a break\\nno unresolved timezone ambiguity", "schema": "Markdown"}};
+
+function loadPreset(key){
+  const p = PRESETS[key];
+  if (!p) return;
+  document.getElementById('f-role').value = p.role;
+  document.getElementById('f-context').value = p.context;
+  document.getElementById('f-directive').value = p.directive;
+  document.getElementById('f-constraints').value = p.constraints.replace(/\\n/g, '\n');
+  document.getElementById('f-schema').value = p.schema;
+  compile();
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+let compiledPrompt = '';
+function compile(){
+  const role = document.getElementById('f-role').value.trim();
+  const context = document.getElementById('f-context').value.trim();
+  const directive = document.getElementById('f-directive').value.trim();
+  const constraintsRaw = document.getElementById('f-constraints').value.trim();
+  const schema = document.getElementById('f-schema').value;
+
+  const constraints = constraintsRaw
+    ? constraintsRaw.split('\n').map(s => s.trim()).filter(Boolean)
+    : [];
+
+  const terminal = document.getElementById('terminal-output');
+  const copyBtn = document.getElementById('copy-btn');
+
+  if (!role && !context && !directive && constraints.length === 0){
+    terminal.innerHTML = '<span class="terminal-empty">Awaiting variable input...</span>';
+    compiledPrompt = '';
+    copyBtn.disabled = true;
+    return;
+  }
+
+  const lines = [];
+  lines.push(`You are ${role || '[ROLE UNSET]'}.`);
+  if (context){
+    lines.push('');
+    lines.push('CONTEXT:');
+    lines.push(context);
+  }
+  if (directive){
+    lines.push('');
+    lines.push('PRIMARY DIRECTIVE:');
+    lines.push(directive);
+  }
+  if (constraints.length){
+    lines.push('');
+    lines.push('NEGATIVE CONSTRAINTS (do not):');
+    constraints.forEach(c => lines.push(`- ${c}`));
+  }
+  lines.push('');
+  lines.push(`OUTPUT FORMAT: Respond in ${schema}.`);
+
+  compiledPrompt = lines.join('\n');
+  terminal.textContent = compiledPrompt;
+  copyBtn.disabled = false;
+  copyBtn.classList.remove('is-copied');
+  copyBtn.textContent = 'COPY SYSTEM PROMPT';
+}
+
+async function copyPrompt(){
+  if (!compiledPrompt) return;
+  const btn = document.getElementById('copy-btn');
+  try {
+    await navigator.clipboard.writeText(compiledPrompt);
+  } catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = compiledPrompt;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); } catch(e2){ /* ignore */ }
+    document.body.removeChild(ta);
+  }
+  btn.textContent = 'COPIED TO CLIPBOARD';
+  btn.classList.add('is-copied');
+  window.setTimeout(() => {
+    btn.textContent = 'COPY SYSTEM PROMPT';
+    btn.classList.remove('is-copied');
+  }, 2000);
+}
+
+document.getElementById('copy-btn').disabled = true;
+compile();
 
 </script>
 </body>
